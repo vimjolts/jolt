@@ -69,7 +69,8 @@ def copytree(src, dst):
         except (IOError, os.error), why:
             print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
-def command_uninstall(name):
+def command_uninstall(args):
+  name = args[0]
   (version, files) = get_record(name)
   if version is None:
     sys.stderr.write("%s is not installed" % name)
@@ -79,7 +80,8 @@ def command_uninstall(name):
     os.remove(os.path.join(home, f))
   delete_record(name)
 
-def command_install(name):
+def command_install(args):
+  name = args[0]
   info = get_metainfo(name)
   if not info:
     sys.stderr.write("jolt not found")
@@ -149,7 +151,8 @@ def command_install(name):
     os.chdir(olddir)
     shutil.rmtree(tmpdir)
 
-def command_joltinfo(name):
+def command_joltinfo(args):
+  name = args[0]
   info = get_metainfo(name)
   if not info:
     sys.stderr.write("jolt not found")
@@ -163,13 +166,15 @@ Requires:
 %s
 """ % tuple([info[x].strip() for x in ["name", "description", "version", "packer", "requires"]]),
 
-def command_search(word):
+def command_search(args):
+  word = args[0]
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
   res = simplejson.loads(f.read())
   for r in res:
     print "%s: %s" % (r["name"], r["version"])
 
-def command_metainfo(name):
+def command_metainfo(args):
+  name = args[0]
   (version, files) = get_record(name)
   if version is None:
     sys.stderr.write("%s is not installed" % name)
@@ -192,19 +197,24 @@ jolt : vim package manager
     uninstall [package] : uninstall the package.
     search [word]       : search packages from joltserver
 """ % get_vimhome()
+  sys.exit(0);
 
 if __name__ == '__main__':
+  if len(sys.argv) == 1:
+    usage()
+  commands = {
+    "joltinfo" :  command_joltinfo,
+    "metainfo" :  command_metainfo,
+    "search" :    command_search,
+    "install" :   command_install,
+    "uninstall" : command_uninstall,
+  }
+  if sys.argv[1] not in commands:
+    usage();
   try:
-    {
-      "joltinfo" :  command_joltinfo,
-      "metainfo" :  command_metainfo,
-      "search" :    command_search,
-      "install" :   command_install,
-      "uninstall" : command_uninstall,
-    }[sys.argv[1]](sys.argv[2])
-  except KeyError, e:
-    usage()
-  except IndexError, e:
-    usage()
+    commands[sys.argv[1]](sys.argv[2:])
+  except:
+    # TODO Show stacktrace
+    sys.exit(1)
 
 # vim:set et ts=2 sw=2:
