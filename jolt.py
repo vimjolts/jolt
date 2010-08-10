@@ -213,6 +213,8 @@ if __name__ == '__main__':
     usage();
   try:
     commands[sys.argv[1]](sys.argv[2:])
+  except KeyboardInterrupt:
+    pass
   except:
     # TODO Show stacktrace
     sys.exit(1)
