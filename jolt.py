@@ -173,7 +173,11 @@ jolt : vim package manager
   your vim home: %s
 
   commands:
-    info [package] : show information of package
+    joltinfo [package]  : show information of the package via joltserver
+    metainfo [package]  : show information of the package via local cache
+    install [package]   : install the package.
+    uninstall [package] : uninstall the package.
+    search [word]       : search packages from joltserver
 """ % get_vimhome()
 
 if __name__ == '__main__':
