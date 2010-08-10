@@ -6,6 +6,7 @@
 import os
 import sys
 import re
+import urllib
 import urllib2
 import simplejson
 import tempfile
@@ -152,6 +153,12 @@ Requires:
 %s
 """ % tuple([info[x].strip() for x in ["name", "description", "version", "packer", "requires"]]),
 
+def command_search(word):
+  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
+  res = simplejson.loads(f.read())
+  for r in res:
+    print "%s: %s" % (r["name"], r["version"])
+
 def command_metainfo(name):
   (version, files) = get_record(name)
   print """
@@ -174,6 +181,7 @@ if __name__ == '__main__':
     {
       "joltinfo" :  command_joltinfo,
       "metainfo" :  command_metainfo,
+      "search" :    command_search,
       "install" :   command_install,
       "uninstall" : command_uninstall,
     }[sys.argv[1]](sys.argv[2])
