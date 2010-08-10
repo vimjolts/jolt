@@ -11,6 +11,7 @@ import urllib2
 import simplejson
 import tempfile
 import shutil
+import traceback
 from zipfile import ZipFile
 
 def get_record(name):
@@ -216,7 +217,7 @@ if __name__ == '__main__':
   except KeyboardInterrupt:
     pass
   except:
-    # TODO Show stacktrace
+    traceback.print_exc()
     sys.exit(1)
 
 # vim:set et ts=2 sw=2:
