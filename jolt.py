@@ -211,6 +211,7 @@ if __name__ == '__main__':
     "uninstall" : command_uninstall,
   }
   if sys.argv[1] not in commands:
+    print >>sys.stderr, sys.argv[1] + ": unknown command"
     usage();
   try:
     commands[sys.argv[1]](sys.argv[2:])
