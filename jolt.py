@@ -18,6 +18,8 @@ def get_record(name):
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
+  if not os.path.exists(metafile):
+    return None, None
   f = open(metafile, "rb")
   version = f.readline().rstrip()
   files = f.read().split("\n")
@@ -29,7 +31,8 @@ def delete_record(name):
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
-  os.remove(metafile)
+  if os.path.exists(metafile):
+    os.remove(metafile)
 
 def add_record(name, version, files):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -68,6 +71,9 @@ def copytree(src, dst):
 
 def command_uninstall(name):
   (version, files) = get_record(name)
+  if version is None:
+    sys.stderr.write("%s is not installed" % name)
+    return
   home = get_vimhome()
   for f in files:
     os.remove(os.path.join(home, f))
@@ -76,6 +82,7 @@ def command_uninstall(name):
 def command_install(name):
   info = get_metainfo(name)
   if not info:
+    sys.stderr.write("jolt not found")
     return
 
   tmpdir = tempfile.mkdtemp()
@@ -144,6 +151,9 @@ def command_install(name):
 
 def command_joltinfo(name):
   info = get_metainfo(name)
+  if not info:
+    sys.stderr.write("jolt not found")
+    return
   print """
 Name: %s
 Description: %s
@@ -161,6 +171,9 @@ def command_search(word):
 
 def command_metainfo(name):
   (version, files) = get_record(name)
+  if version is None:
+    sys.stderr.write("%s is not installed" % name)
+    return
   print """
 Version: %s
 Files:
