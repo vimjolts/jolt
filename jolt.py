@@ -186,10 +186,8 @@ if __name__ == '__main__':
       "uninstall" : command_uninstall,
     }[sys.argv[1]](sys.argv[2])
   except KeyError, e:
-    print e
     usage()
   except IndexError, e:
-    print e
     usage()
 
 # vim:set et ts=2 sw=2:
