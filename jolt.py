@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import re
 import urllib
 import simplejson
+
+def get_vimhome():
+  if sys.platform == 'win32':
+    return os.path.expanduser("~/vimfiles")
+  else:
+    return os.path.expanduser("~/.vim")
 
 def get_metainfo(name):
   f = urllib.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
