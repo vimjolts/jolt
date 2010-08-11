@@ -170,6 +170,7 @@ def command_install(args):
     if info["installer"] == "git":
       os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
       shutil.rmtree("%s/.git" % tmpdir, ignore_errors=False, onerror=handle_remove_readonly)
+      # TODO: fix behavior when it's not general vim's runtime path structure.
     elif info["installer"] == "svn":
       os.system("svn export %s %s" % (info["url"], tmpdir))
     else:
