@@ -271,7 +271,7 @@ Files:
   %s
 """ % (version, "\n  ".join(files))
 
-def usage():
+def command_usage(args):
   print """
 Jolt : the Vim Package Management
     your vim home: %s
@@ -285,29 +285,31 @@ Jolt : the Vim Package Management
     uninstall [package] : uninstall the package.
     search    [word]    : search packages from joltserver
 """ % get_vimhome()
-  sys.exit(0);
+  sys.exit(0)
 
 if __name__ == '__main__':
   if len(sys.argv) == 1:
-    usage()
+    command_usage(sys.argv)
   commands = {
+    "help" :      command_usage,
+    "install" :   command_install,
     "joltinfo" :  command_joltinfo,
+    "list" :      command_list,
     "metainfo" :  command_metainfo,
     "search" :    command_search,
-    "list" :      command_list,
-    "update" :    command_update,
-    "install" :   command_install,
     "uninstall" : command_uninstall,
+    "update" :    command_update,
   }
   if sys.argv[1] not in commands:
     print >>sys.stderr, sys.argv[1] + ": unknown command"
-    usage();
+    command_usage(sys.argv);
   try:
     commands[sys.argv[1]](sys.argv[2:])
   except KeyboardInterrupt:
     pass
   except:
-    traceback.print_exc()
+    if sys.argv[1] != "help":
+      traceback.print_exc()
     sys.exit(1)
 
 # vim:set et ts=2 sw=2:
