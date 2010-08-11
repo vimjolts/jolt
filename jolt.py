@@ -72,6 +72,69 @@ def copytree(src, dst):
         except (IOError, os.error), why:
             print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
+def extract_vba(tmpdir, filename):
+  vfilename = os.path.join(tmpdir, filename)
+  lines = open(vfilename, 'r').read().split("\n")[3:]
+  while len(lines) > 0:
+    name = lines.pop(0).split("\t")[0]
+    if len(name) == 0:
+      break
+    td = os.path.dirname(name)
+    if len(td) == 0:
+      continue
+    if not os.path.isdir(td):
+      os.makedirs(td)
+    count = int(lines.pop(0))
+    data = "\n".join(lines[0:count])
+    lines = lines[count:]
+    f = open(name, "wb")
+    f.write(data)
+    f.close()
+
+def extract_tar_gz(tmpdir, filename):
+  tfilename = os.path.join(tmpdir, filename)
+  tfile = tarfile.open(tfilename)
+  try:
+    parent_dir = tfile.getmembers()[0].name.split("/")[0]
+    has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
+    for tinfo in tfile.getmembers():
+      tf = tinfo.name
+      if not has_parent:
+        tf = "/".join(tf.split("/")[1:])
+      td = os.path.dirname(tf)
+      if len(td) == 0:
+        continue
+      if not os.path.isdir(td):
+        os.makedirs(td)
+      f = open(tf, "wb")
+      f.write(tfile.extractfile(tinfo.name).read())
+      f.close()
+  finally:
+    tfile.close()
+    os.remove(tfilename)
+
+def extract_zip(tmpdir, filename):
+  zfilename = os.path.join(tmpdir, filename)
+  zfile = zipfile.ZipFile(zfilename, 'r')
+  try:
+    parent_dir = zfile.infolist()[0].filename.split("/")[0]
+    has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
+    for zinfo in zfile.infolist():
+      zf = zinfo.filename
+      if not has_parent:
+        zf = "/".join(zf.split("/")[1:])
+      zd = os.path.dirname(zf)
+      if len(zd) == 0:
+        continue
+      if not os.path.isdir(zd):
+        os.makedirs(zd)
+      f = open(zf, "wb")
+      f.write(zfile.read(zinfo.filename))
+      f.close()
+  finally:
+    zfile.close()
+    os.remove(zfilename)
+
 def command_uninstall(args):
   name = args[0]
   (version, files) = get_record(name)
@@ -104,62 +167,23 @@ def command_install(args):
     if filename[-4:] == '.vim':
       os.makedirs("plugin")
       shutil.move(filename, "plugin/%s" % filename)
-    elif len(filename) > 6 and filename[-7:] == '.vba.gz':
+    elif len(filename) > 4 and filename[-4:] == '.vba':
+      extract_vba(tmpdir, filename)
+      os.remove(filename)
+    elif len(filename) > 7 and filename[-7:] == '.vba.gz':
       f = open(filename[:-3], "wb")
       f.write(gzip.open(filename).read())
       f.close()
       os.remove(filename)
       filename = filename[:-3]
-
-      ### TODO: include thinca's patch that parseing vba file.
-      ###       and it should be possible to add record file.
-      if sys.platform == 'win32':
-        os.system("vim -c \"exec \"\"UseVimball\"\"|qall\" %s" % filename)
-      else:
-        os.system("vim -c 'exec \"UseVimball\"|qall' %s" % filename)
+      extract_vba(tmpdir, filename)
       os.remove(filename)
-    elif (len(filename) > 6 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
-      tfilename = os.path.join(tmpdir, filename)
-      tfile = tarfile.open(tfilename)
-      try:
-        parent_dir = tfile.getmembers()[0].name.split("/")[0]
-        has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
-        for tinfo in tfile.getmembers():
-          tf = tinfo.name
-          if not has_parent:
-            tf = "/".join(tf.split("/")[1:])
-          td = os.path.dirname(tf)
-          if len(td) == 0:
-            continue
-          if not os.path.isdir(td):
-            os.makedirs(td)
-          f = open(tf, "wb")
-          f.write(tfile.extractfile(tinfo.name).read())
-          f.close()
-      finally:
-        tfile.close()
-        os.remove(tfilename)
-    elif filename[-4:] == '.zip':
-      zfilename = os.path.join(tmpdir, filename)
-      zfile = zipfile.ZipFile(zfilename, 'r')
-      try:
-        parent_dir = zfile.infolist()[0].filename.split("/")[0]
-        has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
-        for zinfo in zfile.infolist():
-          zf = zinfo.filename
-          if not has_parent:
-            zf = "/".join(zf.split("/")[1:])
-          zd = os.path.dirname(zf)
-          if len(zd) == 0:
-            continue
-          if not os.path.isdir(zd):
-            os.makedirs(zd)
-          f = open(zf, "wb")
-          f.write(zfile.read(zinfo.filename))
-          f.close()
-      finally:
-        zfile.close()
-        os.remove(zfilename)
+    elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+      extract_tar_gz(tmpdir, filename)
+      os.remove(filename)
+    elif len(filename) > 4 and filename[-4:] == '.zip':
+      extract_zip(tmpdir, filename)
+      os.remove(filename)
 
     copytree(tmpdir, get_vimhome())
     filelist = []
