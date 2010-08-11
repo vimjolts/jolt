@@ -245,6 +245,15 @@ def command_list(args):
     (version, files) = get_record(f)
     print "%s: %s" % (f, version)
 
+def command_update(args):
+  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+  if not os.path.isdir(metadir):
+    return
+  metafiles = os.listdir(metadir)
+  for f in metafiles:
+    print "updating %s ..." % f
+    command_install([f])
+
 def command_metainfo(args):
   name = args[0]
   (version, files) = get_record(name)
@@ -264,6 +273,7 @@ Jolt : the Vim Package Management
 
   commands:
     list                : list installed packages.
+    update              : update all old plugins.
     joltinfo  [package] : show information of the package via joltserver
     metainfo  [package] : show information of the package via local cache
     install   [package] : install the package.
@@ -280,6 +290,7 @@ if __name__ == '__main__':
     "metainfo" :  command_metainfo,
     "search" :    command_search,
     "list" :      command_list,
+    "update" :    command_update,
     "install" :   command_install,
     "uninstall" : command_uninstall,
   }
