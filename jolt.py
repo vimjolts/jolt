@@ -167,9 +167,6 @@ def command_install(args):
   try:
     os.chdir(tmpdir)
 
-    info["installer"] = "git"
-    info["url"] = "http://github.com/mattn/zencoding-vim.git"
-
     if info["installer"] == "git":
       os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
       shutil.rmtree("%s/.git" % tmpdir, ignore_errors=False, onerror=handle_remove_readonly)
