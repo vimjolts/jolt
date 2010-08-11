@@ -271,7 +271,7 @@ Files:
   %s
 """ % (version, "\n  ".join(files))
 
-def command_usage(args):
+def command_help(args):
   print """
 Jolt : the Vim Package Management
     your vim home: %s
@@ -289,9 +289,9 @@ Jolt : the Vim Package Management
 
 if __name__ == '__main__':
   if len(sys.argv) == 1:
-    command_usage(sys.argv)
+    command_help(sys.argv)
   commands = {
-    "help" :      command_usage,
+    "help" :      command_help,
     "install" :   command_install,
     "joltinfo" :  command_joltinfo,
     "list" :      command_list,
@@ -302,7 +302,7 @@ if __name__ == '__main__':
   }
   if sys.argv[1] not in commands:
     print >>sys.stderr, sys.argv[1] + ": unknown command"
-    command_usage(sys.argv);
+    command_help(sys.argv);
   try:
     commands[sys.argv[1]](sys.argv[2:])
   except KeyboardInterrupt:
