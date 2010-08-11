@@ -148,6 +148,7 @@ def extract_zip(tmpdir, filename):
     os.remove(zfilename)
 
 def command_uninstall(args):
+  if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   (version, files) = get_record(name)
   if version is None:
@@ -159,6 +160,7 @@ def command_uninstall(args):
   delete_record(name)
 
 def command_install(args):
+  if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   info = get_metainfo(name)
   if not info:
@@ -215,6 +217,7 @@ def command_install(args):
     shutil.rmtree(tmpdir)
 
 def command_joltinfo(args):
+  if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   info = get_metainfo(name)
   if not info:
@@ -230,6 +233,7 @@ Requires:
 """ % tuple([info[x].strip() for x in ["name", "description", "version", "packer", "requires"]]),
 
 def command_search(args):
+  if len(args) == 0: raise Exception("Invalid arguments")
   word = args[0]
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
   res = simplejson.loads(f.read())
@@ -255,6 +259,7 @@ def command_update(args):
     command_install([f])
 
 def command_metainfo(args):
+  if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   (version, files) = get_record(name)
   if version is None:
