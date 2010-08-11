@@ -151,7 +151,7 @@ def command_uninstall(args):
   name = args[0]
   (version, files) = get_record(name)
   if version is None:
-    sys.stderr.write("%s is not installed" % name)
+    print >>sys.stderr, "%s is not installed" % name
     return
   home = get_vimhome()
   for f in files:
@@ -162,7 +162,7 @@ def command_install(args):
   name = args[0]
   info = get_metainfo(name)
   if not info:
-    sys.stderr.write("Jolt not found")
+    print >>sys.stderr, "Jolt not installed"
     return
 
   tmpdir = tempfile.mkdtemp()
@@ -185,7 +185,7 @@ def command_install(args):
   
       if filename[-4:] == '.vim':
         os.makedirs(os.path.join(tmpdir, "plugin"))
-        shutil.move(filename, os.path.join(tmpdir, "plugin", filename)
+        shutil.move(filename, os.path.join(tmpdir, "plugin", filename))
       elif len(filename) > 4 and filename[-4:] == '.vba':
         extract_vba(tmpdir, filename)
       elif len(filename) > 7 and filename[-7:] == '.vba.gz':
@@ -208,7 +208,7 @@ def command_install(args):
     add_record(name, info["version"], filelist)
 
   except Exception, e:
-    sys.stderr.write("Exception occured in %s" % tmpdir)
+    print >>sys.stderr, "Exception occured in %s" % tmpdir
     traceback.print_exc()
   finally:
     os.chdir(olddir)
@@ -218,7 +218,7 @@ def command_joltinfo(args):
   name = args[0]
   info = get_metainfo(name)
   if not info:
-    sys.stderr.write("Jolt not found")
+    print >>sys.stderr, "Jolt not installed"
     return
   print """
 Name: %s
@@ -249,7 +249,7 @@ def command_metainfo(args):
   name = args[0]
   (version, files) = get_record(name)
   if version is None:
-    sys.stderr.write("%s is not installed" % name)
+    print >>sys.stderr, "%s is not installed" % name
     return
   print """
 Version: %s
