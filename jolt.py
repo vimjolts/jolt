@@ -58,19 +58,19 @@ def get_metainfo(name):
   return simplejson.loads(f.read())
 
 def copytree(src, dst):
-    names = os.listdir(src)
-    if not os.path.isdir(dst):
-      os.makedirs(dst)
-    for name in names:
-        srcname = os.path.join(src, name)
-        dstname = os.path.join(dst, name)
-        try:
-            if os.path.isdir(srcname):
-                copytree(srcname, dstname)
-            else:
-                shutil.copy2(srcname, dstname)
-        except (IOError, os.error), why:
-            print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
+  names = os.listdir(src)
+  if not os.path.isdir(dst):
+    os.makedirs(dst)
+  for name in names:
+    srcname = os.path.join(src, name)
+    dstname = os.path.join(dst, name)
+    try:
+      if os.path.isdir(srcname):
+        copytree(srcname, dstname)
+      else:
+        shutil.copy2(srcname, dstname)
+    except (IOError, os.error), why:
+      print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
 def extract_vba(tmpdir, filename):
   vfilename = os.path.join(tmpdir, filename)
