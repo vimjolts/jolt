@@ -172,7 +172,7 @@ def command_install(args):
 
     if info["installer"] == "git":
       os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
-      shutil.rmtree("%s/.git" % tmpdir, ignore_errors=False, onerror=handle_remove_readonly)
+      shutil.rmtree(os.path.join(tmpdir, ".git"), ignore_errors=False, onerror=handle_remove_readonly)
       # TODO: fix behavior when it's not general vim's runtime path structure.
     elif info["installer"] == "svn":
       os.system("svn export %s %s" % (info["url"], tmpdir))
@@ -184,8 +184,8 @@ def command_install(args):
       f.close()
   
       if filename[-4:] == '.vim':
-        os.makedirs("plugin")
-        shutil.move(filename, "plugin/%s" % filename)
+        os.makedirs(os.path.join(tmpdir, "plugin"))
+        shutil.move(filename, os.path.join(tmpdir, "plugin", filename)
       elif len(filename) > 4 and filename[-4:] == '.vba':
         extract_vba(tmpdir, filename)
       elif len(filename) > 7 and filename[-7:] == '.vba.gz':
