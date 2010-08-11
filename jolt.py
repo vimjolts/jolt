@@ -259,8 +259,8 @@ Files:
 
 def usage():
   print """
-jolt : vim package manager
-  your vim home: %s
+Jolt : the Vim Package Management
+    your vim home: %s
 
   commands:
     list                : list installed packages.
