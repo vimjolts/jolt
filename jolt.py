@@ -264,11 +264,12 @@ jolt : vim package manager
   your vim home: %s
 
   commands:
-    joltinfo [package]  : show information of the package via joltserver
-    metainfo [package]  : show information of the package via local cache
-    install [package]   : install the package.
+    list                : list installed packages.
+    joltinfo  [package] : show information of the package via joltserver
+    metainfo  [package] : show information of the package via local cache
+    install   [package] : install the package.
     uninstall [package] : uninstall the package.
-    search [word]       : search packages from joltserver
+    search    [word]    : search packages from joltserver
 """ % get_vimhome()
   sys.exit(0);
 
