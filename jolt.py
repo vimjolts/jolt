@@ -159,7 +159,7 @@ def command_install(args):
   name = args[0]
   info = get_metainfo(name)
   if not info:
-    sys.stderr.write("jolt not found")
+    sys.stderr.write("Jolt not found")
     return
 
   tmpdir = tempfile.mkdtemp()
@@ -209,8 +209,8 @@ def command_install(args):
     add_record(name, info["version"], filelist)
 
   except Exception, e:
+    sys.stderr.write("Exception occured in %s" % tmpdir)
     traceback.print_exc()
-    print tmpdir
   finally:
     os.chdir(olddir)
     shutil.rmtree(tmpdir)
@@ -219,7 +219,7 @@ def command_joltinfo(args):
   name = args[0]
   info = get_metainfo(name)
   if not info:
-    sys.stderr.write("jolt not found")
+    sys.stderr.write("Jolt not found")
     return
   print """
 Name: %s
