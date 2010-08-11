@@ -12,7 +12,9 @@ import simplejson
 import tempfile
 import shutil
 import traceback
-from zipfile import ZipFile
+import zipfile
+import tarfile
+import gzip
 
 def get_record(name):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -93,61 +95,82 @@ def command_install(args):
   try:
     os.chdir(tmpdir)
 
-    if info["installer"] == "10":
-      r = urllib2.urlopen(info["url"])
-      filename = r.info()["Content-Disposition"].split("filename=")[1]
-      f = open(filename, "wb")
-      f.write(r.read())
-      f.close()
+    r = urllib2.urlopen(info["url"])
+    filename = r.info()["Content-Disposition"].split("filename=")[1]
+    f = open(filename, "wb")
+    f.write(r.read())
+    f.close()
 
-    elif info["installer"] == "20":
-      r = urllib2.urlopen(info["url"])
-      filename = r.info()["Content-Disposition"].split("filename=")[1]
-      f = open(filename, "wb")
-      f.write(r.read())
+    if filename[-4:] == '.vim':
+      os.makedirs("plugin")
+      shutil.move(filename, "plugin/%s" % filename)
+    elif len(filename) > 6 and filename[-7:] == '.vba.gz':
+      f = open(filename[:-3], "wb")
+      f.write(gzip.open(filename).read())
       f.close()
+      os.remove(filename)
+      filename = filename[:-3]
 
+      ### TODO: include thinca's patch that parseing vba file.
+      ###       and it should be possible to add record file.
+      if sys.platform == 'win32':
+        os.system("vim -c \"exec \"\"UseVimball\"\"|qall\" %s" % filename)
+      else:
+        os.system("vim -c 'exec \"UseVimball\"|qall' %s" % filename)
+      os.remove(filename)
+    elif (len(filename) > 6 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+      tfilename = os.path.join(tmpdir, filename)
+      tfile = tarfile.open(tfilename)
+      try:
+        parent_dir = tfile.getmembers()[0].name.split("/")[0]
+        has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
+        for tinfo in tfile.getmembers():
+          tf = tinfo.name
+          if not has_parent:
+            tf = "/".join(tf.split("/")[1:])
+          td = os.path.dirname(tf)
+          if len(td) == 0:
+            continue
+          if not os.path.isdir(td):
+            os.makedirs(td)
+          f = open(tf, "wb")
+          f.write(tfile.extractfile(tinfo.name).read())
+          f.close()
+      finally:
+        tfile.close()
+        os.remove(tfilename)
+    elif filename[-4:] == '.zip':
       zfilename = os.path.join(tmpdir, filename)
-      zfile = ZipFile(zfilename, 'r')
+      zfile = zipfile.ZipFile(zfilename, 'r')
       try:
         parent_dir = zfile.infolist()[0].filename.split("/")[0]
-        if parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]:
-          for zinfo in zfile.infolist():
-            zf = zinfo.filename
-            zd = os.path.dirname(zf)
-            if len(zd) == 0:
-              continue
-            if not os.path.isdir(zd):
-              os.makedirs(zd)
-            f = open(zf, "wb")
-            f.write(zfile.read(zinfo.filename))
-            f.close()
-        else:
-          for zinfo in zfile.infolist():
-            zf = "/".join(zinfo.filename.split("/")[1:])
-            zd = os.path.dirname(zf)
-            if len(zd) == 0:
-              continue
-            if not os.path.isdir(zd):
-              os.makedirs(zd)
-            f = open(zf, "wb")
-            f.write(zfile.read(zinfo.filename))
-            f.close()
+        has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
+        for zinfo in zfile.infolist():
+          zf = zinfo.filename
+          if not has_parent:
+            zf = "/".join(zf.split("/")[1:])
+          zd = os.path.dirname(zf)
+          if len(zd) == 0:
+            continue
+          if not os.path.isdir(zd):
+            os.makedirs(zd)
+          f = open(zf, "wb")
+          f.write(zfile.read(zinfo.filename))
+          f.close()
       finally:
         zfile.close()
         os.remove(zfilename)
 
-      copytree(tmpdir, get_vimhome())
-
-      filelist = []
-      for root, subdirs, files in os.walk(tmpdir):
-        for f in files:
-          filelist.append("/".join(os.path.split(os.path.relpath(os.path.join(root, f), tmpdir))))
-      add_record(name, info["version"], filelist)
+    copytree(tmpdir, get_vimhome())
+    filelist = []
+    for root, subdirs, files in os.walk(tmpdir):
+      for f in files:
+        filelist.append("/".join(os.path.split(os.path.relpath(os.path.join(root, f), tmpdir))))
+    add_record(name, info["version"], filelist)
 
   except Exception, e:
+    traceback.print_exc()
     print tmpdir
-    print str(e)
   finally:
     os.chdir(olddir)
     shutil.rmtree(tmpdir)
