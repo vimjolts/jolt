@@ -174,6 +174,15 @@ def command_search(args):
   for r in res:
     print "%s: %s" % (r["name"], r["version"])
 
+def command_list(args):
+  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+  if not os.path.isdir(metadir):
+    return
+  metafiles = os.listdir(metadir)
+  for f in metafiles:
+    (version, files) = get_record(f)
+    print "%s: %s" % (f, version)
+
 def command_metainfo(args):
   name = args[0]
   (version, files) = get_record(name)
@@ -207,6 +216,7 @@ if __name__ == '__main__':
     "joltinfo" :  command_joltinfo,
     "metainfo" :  command_metainfo,
     "search" :    command_search,
+    "list" :      command_list,
     "install" :   command_install,
     "uninstall" : command_uninstall,
   }
