@@ -84,21 +84,24 @@ def handle_remove_readonly(func, path, exc):
 def extract_vba(tmpdir, filename):
   vfilename = os.path.join(tmpdir, filename)
   lines = open(vfilename, 'r').read().split("\n")[3:]
-  while len(lines) > 0:
-    name = lines.pop(0).split("\t")[0]
-    if len(name) == 0:
-      break
-    td = os.path.dirname(name)
-    if len(td) == 0:
-      continue
-    if not os.path.isdir(td):
-      os.makedirs(td)
-    count = int(lines.pop(0))
-    data = "\n".join(lines[0:count])
-    lines = lines[count:]
-    f = open(name, "wb")
-    f.write(data)
-    f.close()
+  try:
+    while len(lines) > 0:
+      name = lines.pop(0).split("\t")[0]
+      if len(name) == 0:
+        break
+      td = os.path.dirname(name)
+      if len(td) == 0:
+        continue
+      if not os.path.isdir(td):
+        os.makedirs(td)
+      count = int(lines.pop(0))
+      data = "\n".join(lines[0:count])
+      lines = lines[count:]
+      f = open(name, "wb")
+      f.write(data)
+      f.close()
+  finally:
+    os.remove(vfilename)
 
 def extract_tar_gz(tmpdir, filename):
   tfilename = os.path.join(tmpdir, filename)
@@ -185,7 +188,6 @@ def command_install(args):
         shutil.move(filename, "plugin/%s" % filename)
       elif len(filename) > 4 and filename[-4:] == '.vba':
         extract_vba(tmpdir, filename)
-        os.remove(filename)
       elif len(filename) > 7 and filename[-7:] == '.vba.gz':
         f = open(filename[:-3], "wb")
         f.write(gzip.open(filename).read())
@@ -193,19 +195,16 @@ def command_install(args):
         os.remove(filename)
         filename = filename[:-3]
         extract_vba(tmpdir, filename)
-        os.remove(filename)
       elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
         extract_tar_gz(tmpdir, filename)
-        os.remove(filename)
       elif len(filename) > 4 and filename[-4:] == '.zip':
         extract_zip(tmpdir, filename)
-        os.remove(filename)
 
     copytree(tmpdir, get_vimhome())
     filelist = []
     for root, subdirs, files in os.walk(tmpdir):
       for f in files:
-        filelist.append("/".join(os.path.split(os.path.relpath(os.path.join(root, f), tmpdir))))
+        filelist.append(re.sub("\\\\", "/", os.path.relpath(os.path.join(root, f), tmpdir)))
     add_record(name, info["version"], filelist)
 
   except Exception, e:
