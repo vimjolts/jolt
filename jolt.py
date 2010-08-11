@@ -10,6 +10,7 @@ import urllib
 import urllib2
 import simplejson
 import tempfile
+import stat
 import shutil
 import traceback
 import zipfile
@@ -71,6 +72,14 @@ def copytree(src, dst):
         shutil.copy2(srcname, dstname)
     except (IOError, os.error), why:
       print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
+
+def handle_remove_readonly(func, path, exc):
+  excvalue = exc[1]
+  if func in (os.rmdir, os.remove):
+    os.chmod(path, stat.S_IRWXU| stat.S_IRWXG| stat.S_IRWXO)
+    func(path)
+  else:
+    raise
 
 def extract_vba(tmpdir, filename):
   vfilename = os.path.join(tmpdir, filename)
@@ -158,32 +167,41 @@ def command_install(args):
   try:
     os.chdir(tmpdir)
 
-    r = urllib2.urlopen(info["url"])
-    filename = r.info()["Content-Disposition"].split("filename=")[1]
-    f = open(filename, "wb")
-    f.write(r.read())
-    f.close()
+    info["installer"] = "git"
+    info["url"] = "http://github.com/mattn/zencoding-vim.git"
 
-    if filename[-4:] == '.vim':
-      os.makedirs("plugin")
-      shutil.move(filename, "plugin/%s" % filename)
-    elif len(filename) > 4 and filename[-4:] == '.vba':
-      extract_vba(tmpdir, filename)
-      os.remove(filename)
-    elif len(filename) > 7 and filename[-7:] == '.vba.gz':
-      f = open(filename[:-3], "wb")
-      f.write(gzip.open(filename).read())
+    if info["installer"] == "git":
+      os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
+      shutil.rmtree("%s/.git" % tmpdir, ignore_errors=False, onerror=handle_remove_readonly)
+    elif info["installer"] == "svn":
+      os.system("svn export %s %s" % (info["url"], tmpdir))
+    else:
+      r = urllib2.urlopen(info["url"])
+      filename = r.info()["Content-Disposition"].split("filename=")[1]
+      f = open(filename, "wb")
+      f.write(r.read())
       f.close()
-      os.remove(filename)
-      filename = filename[:-3]
-      extract_vba(tmpdir, filename)
-      os.remove(filename)
-    elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
-      extract_tar_gz(tmpdir, filename)
-      os.remove(filename)
-    elif len(filename) > 4 and filename[-4:] == '.zip':
-      extract_zip(tmpdir, filename)
-      os.remove(filename)
+  
+      if filename[-4:] == '.vim':
+        os.makedirs("plugin")
+        shutil.move(filename, "plugin/%s" % filename)
+      elif len(filename) > 4 and filename[-4:] == '.vba':
+        extract_vba(tmpdir, filename)
+        os.remove(filename)
+      elif len(filename) > 7 and filename[-7:] == '.vba.gz':
+        f = open(filename[:-3], "wb")
+        f.write(gzip.open(filename).read())
+        f.close()
+        os.remove(filename)
+        filename = filename[:-3]
+        extract_vba(tmpdir, filename)
+        os.remove(filename)
+      elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+        extract_tar_gz(tmpdir, filename)
+        os.remove(filename)
+      elif len(filename) > 4 and filename[-4:] == '.zip':
+        extract_zip(tmpdir, filename)
+        os.remove(filename)
 
     copytree(tmpdir, get_vimhome())
     filelist = []
