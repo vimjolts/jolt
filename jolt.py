@@ -6,7 +6,7 @@ Jolt : the Vim Package Management
 
 See http://vimjolts.appspot.com/
 This is a script of vimjolts that can manage vimscript. below is our design
-philosophy. 
+philosophy.
   * Automatic dependency resolution
   * Uninstallable
   * Searchable
@@ -247,7 +247,7 @@ def command_install(args):
       f = open(filename, "wb")
       f.write(r.read())
       f.close()
-  
+
       if filename[-4:] == '.vim':
         os.makedirs(os.path.join(tmpdir, "plugin"))
         shutil.move(filename, os.path.join(tmpdir, "plugin", filename))
