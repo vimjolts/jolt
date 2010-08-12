@@ -25,6 +25,7 @@ import traceback
 import zipfile
 import tarfile
 import gzip
+import bz2
 from urlparse import urlparse
 
 def get_record(name):
@@ -102,31 +103,26 @@ def handle_remove_readonly(func, path, exc):
 
 def extract_vba(tmpdir, filename):
   """Extract vba file."""
-  vfilename = os.path.join(tmpdir, filename)
-  lines = open(vfilename, 'r').read().split("\n")[3:]
-  try:
-    while len(lines) > 0:
-      name = lines.pop(0).split("\t")[0]
-      if len(name) == 0:
-        break
-      td = os.path.dirname(name)
-      if len(td) == 0:
-        continue
-      if not os.path.isdir(td):
-        os.makedirs(td)
-      count = int(lines.pop(0))
-      data = "\n".join(lines[0:count])
-      lines = lines[count:]
-      f = open(name, "wb")
-      f.write(data)
-      f.close()
-  finally:
-    os.remove(vfilename)
+  lines = open(filename, 'r').read().split("\n")[3:]
+  while len(lines) > 0:
+    name = lines.pop(0).split("\t")[0]
+    if len(name) == 0:
+      break
+    td = os.path.dirname(name)
+    if len(td) == 0:
+      continue
+    if not os.path.isdir(td):
+      os.makedirs(td)
+    count = int(lines.pop(0))
+    data = "\n".join(lines[0:count])
+    lines = lines[count:]
+    f = open(name, "wb")
+    f.write(data)
+    f.close()
 
 def extract_tar_gz(tmpdir, filename):
   """Extract tar.gz/tar.bz2 file."""
-  tfilename = os.path.join(tmpdir, filename)
-  tfile = tarfile.open(tfilename)
+  tfile = tarfile.open(filename)
   try:
     parent_dir = tfile.getmembers()[0].name.split("/")[0]
     has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
@@ -144,12 +140,10 @@ def extract_tar_gz(tmpdir, filename):
       f.close()
   finally:
     tfile.close()
-    os.remove(tfilename)
 
 def extract_zip(tmpdir, filename):
   """Extract zip file."""
-  zfilename = os.path.join(tmpdir, filename)
-  zfile = zipfile.ZipFile(zfilename, 'r')
+  zfile = zipfile.ZipFile(filename, 'r')
   try:
     parent_dir = zfile.infolist()[0].filename.split("/")[0]
     has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
@@ -167,7 +161,6 @@ def extract_zip(tmpdir, filename):
       f.close()
   finally:
     zfile.close()
-    os.remove(zfilename)
 
 def command_uninstall(args):
   """Delete files writen in meta-info."""
@@ -235,35 +228,41 @@ def command_install(args):
   try:
     os.chdir(tmpdir)
 
-    if info["installer"] == "git":
-      os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
-      shutil.rmtree(os.path.join(tmpdir, ".git"), ignore_errors=False, onerror=handle_remove_readonly)
-      # TODO: fix behavior when it's not general vim's runtime path structure.
-    elif info["installer"] == "svn":
-      os.system("svn export %s %s" % (info["url"], tmpdir))
-    else:
-      r = urllib2.urlopen(info["url"])
-      filename = r.info()["Content-Disposition"].split("filename=")[1]
-      f = open(filename, "wb")
-      f.write(r.read())
-      f.close()
-
-      if filename[-4:] == '.vim':
-        os.makedirs(os.path.join(tmpdir, "plugin"))
-        shutil.move(filename, os.path.join(tmpdir, "plugin", filename))
-      elif len(filename) > 4 and filename[-4:] == '.vba':
-        extract_vba(tmpdir, filename)
-      elif len(filename) > 7 and filename[-7:] == '.vba.gz':
-        f = open(filename[:-3], "wb")
-        f.write(gzip.open(filename).read())
+    cmds = info["installer"].split(",")
+  
+    for cmd in cmds:
+      if info["installer"] == "git":
+        os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
+        shutil.rmtree(os.path.join(tmpdir, ".git"), ignore_errors=False, onerror=handle_remove_readonly)
+        # TODO: fix behavior when it's not general vim's runtime path structure.
+      elif info["installer"] == "svn":
+        os.system("svn export %s %s" % (info["url"], tmpdir))
+      else:
+        r = urllib2.urlopen(info["url"])
+        filename = r.info()["Content-Disposition"].split("filename=")[1]
+        f = open(filename, "wb")
+        f.write(r.read())
         f.close()
-        os.remove(filename)
-        filename = filename[:-3]
-        extract_vba(tmpdir, filename)
-      elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
-        extract_tar_gz(tmpdir, filename)
-      elif len(filename) > 4 and filename[-4:] == '.zip':
-        extract_zip(tmpdir, filename)
+  
+        if filename[-4:] == '.vim':
+          os.makedirs(os.path.join(tmpdir, "plugin"))
+          shutil.move(filename, os.path.join(tmpdir, "plugin", filename))
+        elif len(filename) > 4 and filename[-4:] == '.vba':
+          extract_vba(tmpdir, filename)
+        elif len(filename) > 7 and filename[-7:] == '.vba.gz':
+          f = open(filename[:-3], "wb")
+          f.write(gzip.open(filename).read())
+          f.close()
+          os.remove(filename)
+          filename = filename[:-3]
+          extract_vba(tmpdir, filename)
+        elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+          extract_tar_gz(tmpdir, filename)
+        elif len(filename) > 4 and filename[-4:] == '.zip':
+          extract_zip(tmpdir, filename)
+
+        if cmd != "file":
+          os.remove(filename)
 
     copytree(tmpdir, get_vimhome())
     filelist = []
