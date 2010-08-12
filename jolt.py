@@ -269,12 +269,13 @@ def command_joltinfo(args):
     return
   print """
 Name: %s
-Description: %s
 Version: %s
+Description: %s
+URL: %s
 Packer: %s
 Requires:
-%s
-""" % tuple([info[x].strip() for x in ["name", "description", "version", "packer", "requires"]]),
+  %s
+""" % tuple([info[x] for x in ["name", "version", "description", "url", "packer", "requires"]])
 
 def command_search(args):
   if len(args) == 0: raise Exception("Invalid arguments")
@@ -315,10 +316,16 @@ def command_metainfo(args):
     print >>sys.stderr, "%s is not installed" % name
     return
   print """
+Name: %s
 Version: %s
+Description: %s
+URL: %s
+Packer: %s
+Requires:
+  %s
 Files:
   %s
-""" % (version, "\n  ".join(files))
+""" % tuple([(x == "files" and "\n  ".join(info[x]) or info[x]) for x in ["name", "version", "description", "url", "packer", "requires", "files"]])
 
 def command_help(args):
   print """
