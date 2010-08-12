@@ -359,13 +359,13 @@ Jolt : the Vim Package Management
     your vim home: %s
 
   commands:
-    list                : list installed packages.
-    update              : update all old plugins.
-    joltinfo  [package] : show information of the package via joltserver
-    metainfo  [package] : show information of the package via local cache
-    install   [package] : install the package.
-    uninstall [package] : uninstall the package.
-    search    [word]    : search packages from joltserver
+    list:                 list installed packages.
+    update:               update all old plugins.
+    joltinfo  [package]:  show information of the package via joltserver
+    metainfo  [package]:  show information of the package via local cache
+    install   [package]:  install the package.
+    uninstall [package]:  uninstall the package.
+    search    [word]:     search packages from joltserver
 """ % get_vimhome()
   sys.exit(0)
 
@@ -373,14 +373,14 @@ if __name__ == '__main__':
   if len(sys.argv) == 1:
     command_help(sys.argv)
   commands = {
-    "help" :      command_help,
-    "install" :   command_install,
-    "joltinfo" :  command_joltinfo,
-    "list" :      command_list,
-    "metainfo" :  command_metainfo,
-    "search" :    command_search,
-    "uninstall" : command_uninstall,
-    "update" :    command_update,
+    "help":       command_help,
+    "install":    command_install,
+    "joltinfo":   command_joltinfo,
+    "list":       command_list,
+    "metainfo":   command_metainfo,
+    "search":     command_search,
+    "uninstall":  command_uninstall,
+    "update":     command_update,
   }
   if sys.argv[1] not in commands:
     print >>sys.stderr, sys.argv[1] + ": unknown command"
