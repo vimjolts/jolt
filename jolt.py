@@ -16,6 +16,7 @@ import traceback
 import zipfile
 import tarfile
 import gzip
+from urlparse import urlparse
 
 def get_record(name):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -25,10 +26,13 @@ def get_record(name):
   if not os.path.exists(metafile):
     return None, None
   f = open(metafile, "rb")
-  version = f.readline().rstrip()
-  files = f.read().split("\n")
+  info = None
+  try:
+    info = simplejson.loads(f.read())
+  except:
+    pass
   f.close()
-  return version, files
+  return info
 
 def delete_record(name):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -38,14 +42,13 @@ def delete_record(name):
   if os.path.exists(metafile):
     os.remove(metafile)
 
-def add_record(name, version, files):
+def add_record(name, info):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
   f = open(metafile, "wb")
-  f.write(version + "\n")
-  f.write("\n".join(files))
+  f.write(simplejson.dumps(info))
   f.close()
 
 def get_vimhome():
@@ -150,8 +153,8 @@ def extract_zip(tmpdir, filename):
 def command_uninstall(args):
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
-  (version, files) = get_record(name)
-  if version is None:
+  info = get_record(name)
+  if not info:
     print >>sys.stderr, "%s is not installed" % name
     return
   home = get_vimhome()
@@ -162,7 +165,42 @@ def command_uninstall(args):
 def command_install(args):
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
-  info = get_metainfo(name)
+  if len(name) > 4 and name.startswith("git!"):
+    url = name[4:]
+    name = urlparse(url).path.split("/").pop()
+    info = {
+      "name": name,
+      "url": url,
+      "description": "%s via %s" % (name, url),
+      "version": "unknown",
+      "packer": "unknown",
+      "requires": "unknown",
+      "installer": "git",
+    }
+  elif len(name) > 4 and name.startswith("svn!"):
+    url = name[4:]
+    name = urlparse(url).path.split("/").pop()
+    info = {
+      "name": name,
+      "url": url,
+      "description": "%s via %s" % (name, url),
+      "version": "unknown",
+      "packer": "unknown",
+      "requires": "unknown",
+      "installer": "svn",
+    }
+  elif len(name) > 7 and name.startswith("http://"):
+    name = urlparse(url).path.split("/").pop()
+    info = {
+      "name": name,
+      "description": "%s via %s" % (name, url),
+      "version": "unknown",
+      "packer": "unknown",
+      "requires": "unknown",
+      "installer": "",
+    }
+  else:
+    info = get_metainfo(name)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
@@ -207,7 +245,8 @@ def command_install(args):
     for root, subdirs, files in os.walk(tmpdir):
       for f in files:
         filelist.append(re.sub("\\\\", "/", os.path.relpath(os.path.join(root, f), tmpdir)))
-    add_record(name, info["version"], filelist)
+    info["files"] = filelist
+    add_record(name, info)
 
   except Exception, e:
     print >>sys.stderr, "Exception occured in %s" % tmpdir
@@ -246,8 +285,9 @@ def command_list(args):
     return
   metafiles = os.listdir(metadir)
   for f in metafiles:
-    (version, files) = get_record(f)
-    print "%s: %s" % (f, version)
+    info = get_record(f)
+    if info:
+      print "%s: %s" % (f, info["version"])
 
 def command_update(args):
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -261,8 +301,8 @@ def command_update(args):
 def command_metainfo(args):
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
-  (version, files) = get_record(name)
-  if version is None:
+  info = get_record(name)
+  if not info:
     print >>sys.stderr, "%s is not installed" % name
     return
   print """
