@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 VimJolts Developer Team.
+"""
+Jolt : the Vim Package Management
+
+See http://vimjolts.appspot.com/
+This is a script of vimjolts that can manage vimscript. below is our design
+philosophy. 
+  * Automatic dependency resolution
+  * Uninstallable
+  * Searchable
+"""
 
 import os
 import sys
@@ -19,6 +28,7 @@ import gzip
 from urlparse import urlparse
 
 def get_record(name):
+  """Get meta-info from local that is stored information about the package."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
@@ -35,6 +45,7 @@ def get_record(name):
   return info
 
 def delete_record(name):
+  """Delete meta-info file."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
@@ -43,6 +54,7 @@ def delete_record(name):
     os.remove(metafile)
 
 def add_record(name, info):
+  """Add meta-info file."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
@@ -52,16 +64,19 @@ def add_record(name, info):
   f.close()
 
 def get_vimhome():
+  """Get user's vim home."""
   if sys.platform == 'win32':
     return os.path.expanduser("~/vimfiles")
   else:
     return os.path.expanduser("~/.vim")
 
-def get_metainfo(name):
+def get_joltinfo(name):
+  """Get jolt-info from server that is stored information about the package."""
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
   return simplejson.loads(f.read())
 
 def copytree(src, dst):
+  """Copy directory tree as overwriting."""
   names = os.listdir(src)
   if not os.path.isdir(dst):
     os.makedirs(dst)
@@ -77,6 +92,7 @@ def copytree(src, dst):
       print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
 def handle_remove_readonly(func, path, exc):
+  """Remove error handler. change file permission and retry delete."""
   excvalue = exc[1]
   if func in (os.rmdir, os.remove):
     os.chmod(path, stat.S_IRWXU| stat.S_IRWXG| stat.S_IRWXO)
@@ -85,6 +101,7 @@ def handle_remove_readonly(func, path, exc):
     raise
 
 def extract_vba(tmpdir, filename):
+  """Extract vba file."""
   vfilename = os.path.join(tmpdir, filename)
   lines = open(vfilename, 'r').read().split("\n")[3:]
   try:
@@ -107,6 +124,7 @@ def extract_vba(tmpdir, filename):
     os.remove(vfilename)
 
 def extract_tar_gz(tmpdir, filename):
+  """Extract tar.gz/tar.bz2 file."""
   tfilename = os.path.join(tmpdir, filename)
   tfile = tarfile.open(tfilename)
   try:
@@ -129,6 +147,7 @@ def extract_tar_gz(tmpdir, filename):
     os.remove(tfilename)
 
 def extract_zip(tmpdir, filename):
+  """Extract zip file."""
   zfilename = os.path.join(tmpdir, filename)
   zfile = zipfile.ZipFile(zfilename, 'r')
   try:
@@ -151,6 +170,7 @@ def extract_zip(tmpdir, filename):
     os.remove(zfilename)
 
 def command_uninstall(args):
+  """Delete files writen in meta-info."""
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   info = get_record(name)
@@ -163,6 +183,7 @@ def command_uninstall(args):
   delete_record(name)
 
 def command_install(args):
+  """Install from remote."""
   if type(args) is list:
     if len(args) == 0: raise Exception("Invalid arguments")
     name = args[0]
@@ -205,7 +226,7 @@ def command_install(args):
       "installer": "",
     }
   else:
-    info = get_metainfo(name)
+    info = get_joltinfo(name)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
@@ -261,9 +282,10 @@ def command_install(args):
     shutil.rmtree(tmpdir)
 
 def command_joltinfo(args):
+  """Show jolt-info getting from vimjolts server."""
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
-  info = get_metainfo(name)
+  info = get_joltinfo(name)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
@@ -278,6 +300,7 @@ Requires:
 """ % tuple([info[x] for x in ["name", "version", "description", "url", "packer", "requires"]])
 
 def command_search(args):
+  """Search the name of package from vimjolts server."""
   if len(args) == 0: raise Exception("Invalid arguments")
   word = args[0]
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
@@ -286,6 +309,7 @@ def command_search(args):
     print "%s: %s" % (r["name"], r["version"])
 
 def command_list(args):
+  """Show the names of installed packages."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     return
@@ -296,6 +320,7 @@ def command_list(args):
       print "%s: %s" % (f, info["version"])
 
 def command_update(args):
+  """Update all packages installed."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     return
@@ -309,6 +334,7 @@ def command_update(args):
       command_install([f])
 
 def command_metainfo(args):
+  """Show meta-info of installed package."""
   if len(args) == 0: raise Exception("Invalid arguments")
   name = args[0]
   info = get_record(name)
@@ -328,6 +354,7 @@ Files:
 """ % tuple([(x == "files" and "\n  ".join(info[x]) or info[x]) for x in ["name", "version", "description", "url", "packer", "requires", "files"]])
 
 def command_help(args):
+  """Show command usages."""
   print """
 Jolt : the Vim Package Management
     your vim home: %s
