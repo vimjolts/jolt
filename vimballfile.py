@@ -26,9 +26,9 @@ class VimballFile:
         self.NameToInfo = {}    # Find file info given name
         self.filelist = []      # List of ZipInfo instances for archive
 
-        f = open(file, 'r')
-        lines = f.readlines()[3:]
-        f.close()
+        lines = []
+        with open(file, 'r') as f:
+            lines = f.readlines()[3:]
 
         # FIXME: Check the file format.
         while len(lines) != 0:
