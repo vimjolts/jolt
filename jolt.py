@@ -163,9 +163,14 @@ def command_uninstall(args):
   delete_record(name)
 
 def command_install(args):
-  if len(args) == 0: raise Exception("Invalid arguments")
-  name = args[0]
-  if len(name) > 4 and name.startswith("git!"):
+  if type(args) is list:
+    if len(args) == 0: raise Exception("Invalid arguments")
+    name = args[0]
+  elif type(args) is dict:
+    name = args["name"]
+    info = args
+    pass
+  elif len(name) > 4 and name.startswith("git!"):
     url = name[4:]
     name = urlparse(url).path.split("/").pop()
     info = {
@@ -296,7 +301,11 @@ def command_update(args):
   metafiles = os.listdir(metadir)
   for f in metafiles:
     print "updating %s ..." % f
-    command_install([f])
+    info = get_record(f)
+    if info:
+      command_install(info)
+    else:
+      command_install([f])
 
 def command_metainfo(args):
   if len(args) == 0: raise Exception("Invalid arguments")
