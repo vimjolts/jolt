@@ -190,8 +190,7 @@ def command_install(args):
   elif type(args) is dict:
     name = args["name"]
     info = args
-    pass
-  elif len(name) > 4 and name.startswith("git!"):
+  if len(name) > 4 and name.startswith("git!"):
     url = name[4:]
     name = urlparse(url).path.split("/").pop()
     info = {
