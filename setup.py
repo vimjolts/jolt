@@ -6,7 +6,7 @@ import sys
 
 def script():
   if sys.platform == 'win32':
-    return ['jolt.bat']
+    return ['jolt', 'jolt.bat']
   else:
     return ['jolt']
 
@@ -20,7 +20,7 @@ setup(
     #},
     zip_safe = True,
     install_requires = [],
-    scripts=script(),
+    scripts = script(),
     author = "VimJolts Developer Team",
     author_email = "ujihisa+vimjolts2@gmail.com",
     description = "Vim package manager.",
