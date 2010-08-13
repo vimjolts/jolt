@@ -2,6 +2,13 @@
 #ez_setup.use_setuptools()
 
 from setuptools import setup, find_packages
+import sys
+
+def script():
+  if sys.platform == 'win32':
+    return ['jolt.bat']
+  else:
+    return ['jolt']
 
 setup(
     name = "jolt",
@@ -13,7 +20,7 @@ setup(
     #},
     zip_safe = True,
     install_requires = [],
-    scripts=['jolt'],
+    scripts=script(),
     author = "VimJolts Developer Team",
     author_email = "ujihisa+vimjolts2@gmail.com",
     description = "Vim package manager.",
