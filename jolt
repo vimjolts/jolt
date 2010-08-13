@@ -28,6 +28,11 @@ import gzip
 import bz2
 from urlparse import urlparse
 
+___name___ = "jolt"
+___author___ = "mattn <mattn.jp@gmail.com>"
+#___license___ = ""
+___version___ = "0.1"
+
 def get_record(name):
   """Get meta-info from local that is stored information about the package."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
@@ -76,8 +81,8 @@ def get_joltinfo(name):
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
   return simplejson.loads(f.read())
 
-def copytree(src, dst):
-  """Copy directory tree as overwriting."""
+def copytree(src, dst, basedir=""):
+  """Copy directory tree as overwriting. if basedir is set, it wont copy files at upper of basedir."""
   names = os.listdir(src)
   if not os.path.isdir(dst):
     os.makedirs(dst)
@@ -86,9 +91,10 @@ def copytree(src, dst):
     dstname = os.path.join(dst, name)
     try:
       if os.path.isdir(srcname):
-        copytree(srcname, dstname)
+        copytree(srcname, dstname, ignore_root)
       else:
-        shutil.copy2(srcname, dstname)
+        if len(basedir) == 0 or os.path.dirname(srcname) != basedir:
+          shutil.copy2(srcname, dstname)
     except (IOError, os.error), why:
       print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
@@ -177,12 +183,14 @@ def command_uninstall(args):
 
 def command_install(args):
   """Install from remote."""
+  opts = []
   if type(args) is list:
     if len(args) == 0: raise Exception("Invalid arguments")
     name = args[0]
   elif type(args) is dict:
     name = args["name"]
     info = args
+
   if len(name) > 4 and name.startswith("git!"):
     url = name[4:]
     name = urlparse(url).path.split("/").pop()
@@ -264,7 +272,7 @@ def command_install(args):
         if cmd != "file":
           os.remove(filename)
 
-    copytree(tmpdir, get_vimhome())
+    copytree(tmpdir, get_vimhome(), tmpdir)
     filelist = []
     for root, subdirs, files in os.walk(tmpdir):
       for f in files:
