@@ -19,7 +19,7 @@ setup(
     #    '': ['data/*'],
     #},
     zip_safe = True,
-    install_requires = [],
+    install_requires = ["simplejson>=2.1.1"],
     scripts = script(),
     author = "VimJolts Developer Team",
     author_email = "ujihisa+vimjolts2@gmail.com",
