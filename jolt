@@ -177,7 +177,7 @@ def command_uninstall(args):
     print >>sys.stderr, "%s is not installed" % name
     return
   home = get_vimhome()
-  for f in files:
+  for f in info["files"]:
     os.remove(os.path.join(home, f))
   delete_record(name)
 
