@@ -125,8 +125,7 @@ def extract_vba(tmpdir, filename):
 
 def extract_tar_gz(tmpdir, filename):
   """Extract tar.gz/tar.bz2 file."""
-  tfile = tarfile.open(filename)
-  try:
+  with tarfile.open(filename) as tfile:
     parent_dir = tfile.getmembers()[0].name.split("/")[0]
     has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
     for tinfo in tfile.getmembers():
@@ -140,13 +139,10 @@ def extract_tar_gz(tmpdir, filename):
         os.makedirs(td)
       with open(tf, "wb") as f:
         f.write(tfile.extractfile(tinfo.name).read())
-  finally:
-    tfile.close()
 
 def extract_zip(tmpdir, filename):
   """Extract zip file."""
-  zfile = zipfile.ZipFile(filename, 'r')
-  try:
+  with zipfile.ZipFile(filename, 'r') as zfile:
     parent_dir = zfile.infolist()[0].filename.split("/")[0]
     has_parent = parent_dir in ["autoload", "colors", "compiler", "doc", "ftplugin", "indent", "keymap", "plugin", "syntax"]
     for zinfo in zfile.infolist():
@@ -160,8 +156,6 @@ def extract_zip(tmpdir, filename):
         os.makedirs(zd)
       with open(zf, "wb") as f:
         f.write(zfile.read(zinfo.filename))
-  finally:
-    zfile.close()
 
 def command_uninstall(args):
   """Delete files writen in meta-info."""
