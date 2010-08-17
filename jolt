@@ -170,7 +170,7 @@ def extract_zip(tmpdir, filename):
 
 def command_uninstall(args):
   """Delete files writen in meta-info."""
-  if len(args) == 0: raise Exception("Invalid arguments")
+  if len(args) == 0: raise RuntimeError("Invalid arguments")
   name = args[0]
   info = get_record(name)
   if not info:
@@ -187,7 +187,7 @@ def command_install(args):
   """Install from remote."""
   opts = []
   if type(args) is list:
-    if len(args) == 0: raise Exception("Invalid arguments")
+    if len(args) == 0: raise RuntimeError("Invalid arguments")
     name = args[0]
   elif type(args) is dict:
     name = args["name"]
@@ -302,7 +302,7 @@ def command_install(args):
 
     add_record(name, info)
 
-  except Exception, e:
+  except RuntimeError, e:
     print >>sys.stderr, "Exception occured in %s" % tmpdir
     traceback.print_exc()
   finally:
@@ -311,7 +311,7 @@ def command_install(args):
 
 def command_joltinfo(args):
   """Show jolt-info getting from vimjolts server."""
-  if len(args) == 0: raise Exception("Invalid arguments")
+  if len(args) == 0: raise RuntimeError("Invalid arguments")
   name = args[0]
   info = get_joltinfo(name)
   if not info:
@@ -329,7 +329,7 @@ Requires:
 
 def command_search(args):
   """Search the name of package from vimjolts server."""
-  if len(args) == 0: raise Exception("Invalid arguments")
+  if len(args) == 0: raise RuntimeError("Invalid arguments")
   word = args[0]
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
   res = simplejson.loads(f.read())
@@ -363,7 +363,7 @@ def command_update(args):
 
 def command_metainfo(args):
   """Show meta-info of installed package."""
-  if len(args) == 0: raise Exception("Invalid arguments")
+  if len(args) == 0: raise RuntimeError("Invalid arguments")
   name = args[0]
   info = get_record(name)
   if not info:
