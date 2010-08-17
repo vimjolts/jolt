@@ -74,8 +74,11 @@ def get_vimhome():
 
 def get_joltinfo(name):
   """Get jolt-info from server that is stored information about the package."""
-  f = urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
-  return simplejson.load(f)
+  try:
+    f = urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
+    return simplejson.load(f)
+  except:
+    return None
 
 def copytree(src, dst, basedir=""):
   """Copy directory tree as overwriting. if basedir is set, it wont copy files at upper of basedir."""
