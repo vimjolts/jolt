@@ -390,13 +390,13 @@ if __name__ == '__main__':
     command_help();
   try:
     commands[sys.argv[1]](*sys.argv[2:])
+  except TypeError:
+    if not sys.exc_info()[2].tb_next:
+      command_help();
   except KeyboardInterrupt:
     pass
   except:
-    if sys.exc_info()[2].tb_next:
-      traceback.print_exc()
-    else:
-      command_help();
+    traceback.print_exc()
     sys.exit(1)
 
 # vim:set et ts=2 sw=2:
