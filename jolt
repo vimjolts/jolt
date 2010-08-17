@@ -393,8 +393,10 @@ if __name__ == '__main__':
   except KeyboardInterrupt:
     pass
   except:
-    if sys.argv[1] != "help":
+    if sys.exc_info()[2].tb_next:
       traceback.print_exc()
+    else:
+      command_help();
     sys.exit(1)
 
 # vim:set et ts=2 sw=2:
