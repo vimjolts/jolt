@@ -157,30 +157,28 @@ def extract_zip(tmpdir, filename):
       with open(zf, "wb") as f:
         f.write(zfile.read(zinfo.filename))
 
-def command_uninstall(args):
+def command_uninstall(arg):
   """Delete files writen in meta-info."""
-  if len(args) == 0: raise RuntimeError("Invalid arguments")
-  name = args[0]
-  info = get_record(name)
+  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
+  info = get_record(arg)
   if not info:
-    print >>sys.stderr, "%s is not installed" % name
+    print >>sys.stderr, "%s is not installed" % arg
     return
   home = get_vimhome()
   for f in info["files"]:
     ff = os.path.join(home, f)
     if os.path.exists(ff):
       os.remove(ff)
-  delete_record(name)
+  delete_record(arg)
 
-def command_install(args):
+def command_install(arg):
   """Install from remote."""
-  opts = []
-  if isinstance(args, list):
-    if len(args) == 0: raise RuntimeError("Invalid arguments")
-    name = args[0]
-  elif isinstance(args, dict):
-    name = args["name"]
-    info = args
+  if isinstance(arg, str):
+    #if len(arg) == 0: raise RuntimeError("Invalid arguments")
+    name = arg
+  elif isinstance(arg, dict):
+    name = arg["name"]
+    info = arg
 
   if len(name) > 4 and name.startswith("git!"):
     url = name[4:]
@@ -295,11 +293,10 @@ def command_install(args):
     os.chdir(olddir)
     shutil.rmtree(tmpdir)
 
-def command_joltinfo(args):
+def command_joltinfo(arg):
   """Show jolt-info getting from vimjolts server."""
-  if len(args) == 0: raise RuntimeError("Invalid arguments")
-  name = args[0]
-  info = get_joltinfo(name)
+  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
+  info = get_joltinfo(arg)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
@@ -313,16 +310,15 @@ Requires:
   %s
 """ % tuple([info[x] for x in ["name", "version", "description", "url", "packer", "requires"]])
 
-def command_search(args):
+def command_search(arg):
   """Search the name of package from vimjolts server."""
-  if len(args) == 0: raise RuntimeError("Invalid arguments")
-  word = args[0]
-  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
+  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
+  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": arg}))
   res = simplejson.loads(f.read())
   for r in res:
     print "%s: %s" % (r["name"], r["version"])
 
-def command_list(args):
+def command_list():
   """Show the names of installed packages."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
@@ -333,7 +329,7 @@ def command_list(args):
     if info:
       print "%s: %s" % (f, info["version"])
 
-def command_update(args):
+def command_update(arg):
   """Update all packages installed."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
@@ -345,15 +341,14 @@ def command_update(args):
     if info:
       command_install(info)
     else:
-      command_install([f])
+      command_install(f)
 
-def command_metainfo(args):
+def command_metainfo(arg):
   """Show meta-info of installed package."""
-  if len(args) == 0: raise RuntimeError("Invalid arguments")
-  name = args[0]
-  info = get_record(name)
+  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
+  info = get_record(arg)
   if not info:
-    print >>sys.stderr, "%s is not installed" % name
+    print >>sys.stderr, "%s is not installed" % arg
     return
   print """
 Name: %s
@@ -367,7 +362,7 @@ Files:
   %s
 """ % tuple([(x == "files" and "\n  ".join(info[x]) or info[x]) for x in ["name", "version", "description", "url", "packer", "requires", "files"]])
 
-def command_help(args):
+def command_help():
   """Show command usages."""
   print """
 Jolt : the Vim Package Management System
@@ -386,7 +381,7 @@ Jolt : the Vim Package Management System
 
 if __name__ == '__main__':
   if len(sys.argv) == 1:
-    command_help(sys.argv)
+    command_help()
   commands = {
     "help":       command_help,
     "install":    command_install,
@@ -399,9 +394,9 @@ if __name__ == '__main__':
   }
   if sys.argv[1] not in commands:
     print >>sys.stderr, sys.argv[1] + ": unknown command"
-    command_help(sys.argv);
+    command_help();
   try:
-    commands[sys.argv[1]](sys.argv[2:])
+    commands[sys.argv[1]](*sys.argv[2:])
   except KeyboardInterrupt:
     pass
   except:
