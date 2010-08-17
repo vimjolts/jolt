@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 """
-Jolt : the Vim Package Management
+Jolt : the Vim Package Management System
 
 See http://vimjolts.appspot.com/
 This is a script of vimjolts that can manage vimscript. below is our design
