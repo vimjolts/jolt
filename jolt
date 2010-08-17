@@ -234,7 +234,7 @@ def command_install(name):
   else:
     info = get_joltinfo(name)
   if not info:
-    print >>sys.stderr, "Jolt not installed"
+    print >>sys.stderr, "Jolt not found"
     return
 
   tmpdir = tempfile.mkdtemp()
