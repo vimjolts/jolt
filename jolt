@@ -178,7 +178,9 @@ def command_uninstall(args):
     return
   home = get_vimhome()
   for f in info["files"]:
-    os.remove(os.path.join(home, f))
+    ff = os.path.join(home, f)
+    if os.path.exists(ff):
+      os.remove(ff)
   delete_record(name)
 
 def command_install(args):
@@ -197,11 +199,13 @@ def command_install(args):
     info = {
       "name": name,
       "url": url,
+      "author": "unknown",
       "description": "%s via %s" % (name, url),
       "version": "unknown",
       "packer": "unknown",
       "requires": "unknown",
-      "installer": "git",
+      "extractor": "git",
+      "installer": "",
     }
   elif len(name) > 4 and name.startswith("svn!"):
     url = name[4:]
@@ -209,20 +213,25 @@ def command_install(args):
     info = {
       "name": name,
       "url": url,
+      "author": "unknown",
       "description": "%s via %s" % (name, url),
       "version": "unknown",
       "packer": "unknown",
       "requires": "unknown",
-      "installer": "svn",
+      "extractor": "svn",
+      "installer": "",
     }
   elif len(name) > 7 and name.startswith("http://"):
     name = urlparse(url).path.split("/").pop()
     info = {
       "name": name,
+      "url": url,
+      "author": "unknown",
       "description": "%s via %s" % (name, url),
       "version": "unknown",
       "packer": "unknown",
       "requires": "unknown",
+      "extractor": "",
       "installer": "",
     }
   else:
@@ -236,41 +245,53 @@ def command_install(args):
   try:
     os.chdir(tmpdir)
 
-    cmds = info["installer"].split(",")
-  
-    for cmd in cmds:
-      if info["installer"] == "git":
-        os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
-        shutil.rmtree(os.path.join(tmpdir, ".git"), ignore_errors=False, onerror=handle_remove_readonly)
-        # TODO: fix behavior when it's not general vim's runtime path structure.
-      elif info["installer"] == "svn":
-        os.system("svn export %s %s" % (info["url"], tmpdir))
-      else:
-        r = urllib2.urlopen(info["url"])
-        filename = r.info()["Content-Disposition"].split("filename=")[1]
-        f = open(filename, "wb")
-        f.write(r.read())
-        f.close()
-  
-        if filename[-4:] == '.vim':
-          os.makedirs(os.path.join(tmpdir, "plugin"))
-          shutil.move(filename, os.path.join(tmpdir, "plugin", filename))
-        elif len(filename) > 4 and filename[-4:] == '.vba':
-          extract_vba(tmpdir, filename)
-        elif len(filename) > 7 and filename[-7:] == '.vba.gz':
-          f = open(filename[:-3], "wb")
-          f.write(gzip.open(filename).read())
-          f.close()
-          os.remove(filename)
-          filename = filename[:-3]
-          extract_vba(tmpdir, filename)
-        elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
-          extract_tar_gz(tmpdir, filename)
-        elif len(filename) > 4 and filename[-4:] == '.zip':
-          extract_zip(tmpdir, filename)
+    if info["extractor"] == "git":
+      os.system("git clone --depth=1 %s %s" % (info["url"], tmpdir))
+      shutil.rmtree(os.path.join(tmpdir, ".git"), ignore_errors=False, onerror=handle_remove_readonly)
+      # TODO: fix behavior when it's not general vim's runtime path structure.
+    elif info["extractor"] == "svn":
+      os.system("svn export %s %s" % (info["url"], tmpdir))
+    else:
+      r = urllib2.urlopen(info["url"])
+      filename = r.info()["Content-Disposition"].split("filename=")[1]
+      f = open(filename, "wb")
+      f.write(r.read())
+      f.close()
 
-        if cmd != "file":
-          os.remove(filename)
+      if len(filename) > 4 and filename[-4:] == '.vba':
+        extract_vba(tmpdir, filename)
+        os.remove(filename)
+      elif len(filename) > 7 and filename[-7:] == '.vba.gz':
+        f = open(filename[:-3], "wb")
+        f.write(gzip.open(filename).read())
+        f.close()
+        os.remove(filename)
+        filename = filename[:-3]
+        extract_vba(tmpdir, filename)
+        os.remove(filename)
+      elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+        extract_tar_gz(tmpdir, filename)
+        os.remove(filename)
+      elif len(filename) > 4 and filename[-4:] == '.zip':
+        extract_zip(tmpdir, filename)
+        os.remove(filename)
+      elif info["installer"] in ["plugin", "ftplugin", "syntax", "colors", "doc", "indent", "dict"]:
+        os.makedirs(os.path.join(tmpdir, info["installer"]))
+        shutil.move(filename, os.path.join(tmpdir, info["installer"], filename))
+      elif info["installer"] == "custom":
+        if sys.platform == 'win32':
+          f = open("___install.bat", "wb")
+          f.write("@echo off\n")
+          f.write(info["installer_win32"])
+          f.close()
+          os.system("___install.bat")
+          os.remove("___install.bat")
+        else:
+          f = open("___install.sh", "wb")
+          f.write(info["installer_unix"])
+          f.close()
+          os.system("sh ___install.sh")
+          os.remove("___install.sh")
 
     copytree(tmpdir, get_vimhome(), tmpdir)
     filelist = []
@@ -278,6 +299,7 @@ def command_install(args):
       for f in files:
         filelist.append(re.sub("\\\\", "/", os.path.relpath(os.path.join(root, f), tmpdir)))
     info["files"] = filelist
+
     add_record(name, info)
 
   except Exception, e:
