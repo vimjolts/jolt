@@ -79,10 +79,9 @@ def get_joltinfo(name):
 
 def copytree(src, dst, basedir=""):
   """Copy directory tree as overwriting. if basedir is set, it wont copy files at upper of basedir."""
-  names = os.listdir(src)
   if not os.path.isdir(dst):
     os.makedirs(dst)
-  for name in names:
+  for name in os.listdir(src):
     srcname = os.path.join(src, name)
     dstname = os.path.join(dst, name)
     try:
@@ -320,8 +319,7 @@ def command_list():
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     return
-  metafiles = os.listdir(metadir)
-  for f in metafiles:
+  for f in os.listdir(metadir):
     info = get_record(f)
     if info:
       print "%s: %s" % (f, info["version"])
@@ -331,8 +329,7 @@ def command_update():
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
     return
-  metafiles = os.listdir(metadir)
-  for f in metafiles:
+  for f in os.listdir(metadir):
     print "updating %s ..." % f
     info = get_record(f)
     if info:
