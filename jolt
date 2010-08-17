@@ -38,14 +38,13 @@ def get_record(name):
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
-  if not os.path.exists(metafile):
-    return None, None
   info = None
-  try:
-    with open(metafile, "rb") as f:
-      info = simplejson.load(f)
-  except:
-    pass
+  if os.path.exists(metafile):
+    try:
+      with open(metafile, "rb") as f:
+        info = simplejson.load(f)
+    except:
+      pass
   return info
 
 def delete_record(name):
@@ -90,6 +89,7 @@ def copytree(src, dst, basedir=""):
       if os.path.isdir(srcname):
         copytree(srcname, dstname, basedir)
       else:
+        #TODO: ignore copying needless files.
         if len(basedir) == 0 or os.path.dirname(srcname) != basedir:
           shutil.copy2(srcname, dstname)
     except (IOError, os.error), why:
