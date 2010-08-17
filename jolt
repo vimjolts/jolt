@@ -159,7 +159,6 @@ def extract_zip(tmpdir, filename):
 
 def command_uninstall(arg):
   """Delete files writen in meta-info."""
-  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
   info = get_record(arg)
   if not info:
     print >>sys.stderr, "%s is not installed" % arg
@@ -174,7 +173,6 @@ def command_uninstall(arg):
 def command_install(arg):
   """Install from remote."""
   if isinstance(arg, str):
-    #if len(arg) == 0: raise RuntimeError("Invalid arguments")
     name = arg
   elif isinstance(arg, dict):
     name = arg["name"]
@@ -295,24 +293,20 @@ def command_install(arg):
 
 def command_joltinfo(arg):
   """Show jolt-info getting from vimjolts server."""
-  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
   info = get_joltinfo(arg)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
-  print """
-Name: %s
-Version: %s
-Description: %s
-URL: %s
-Packer: %s
-Requires:
-  %s
-""" % tuple([info[x] for x in ["name", "version", "description", "url", "packer", "requires"]])
+  print "\n".join([
+    "Name: %s" % info["name"],
+    "Version: %s" % info["version"],
+    "Description: %s" % info["description"],
+    "URL: %s" % info["url"],
+    "Packer: %s" % str(info["packer"]),
+    "Requires:\n  %s" % "\n  ".join(info["requires"])])
 
 def command_search(arg):
   """Search the name of package from vimjolts server."""
-  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
   f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": arg}))
   res = simplejson.loads(f.read())
   for r in res:
@@ -345,22 +339,18 @@ def command_update(arg):
 
 def command_metainfo(arg):
   """Show meta-info of installed package."""
-  #if len(arg) == 0: raise RuntimeError("Invalid arguments")
   info = get_record(arg)
   if not info:
     print >>sys.stderr, "%s is not installed" % arg
     return
-  print """
-Name: %s
-Version: %s
-Description: %s
-URL: %s
-Packer: %s
-Requires:
-  %s
-Files:
-  %s
-""" % tuple([(x == "files" and "\n  ".join(info[x]) or info[x]) for x in ["name", "version", "description", "url", "packer", "requires", "files"]])
+  print "\n".join([
+    "Name: %s" % info["name"],
+    "Version: %s" % info["version"],
+    "Description: %s" % info["description"],
+    "URL: %s" % info["url"],
+    "Packer: %s" % str(info["packer"]),
+    "Requires:\n  %s" % "\n  ".join(info["requires"]),
+    "Files:\n %s" % "\n  ".join(info["files"])])
 
 def command_help():
   """Show command usages."""
