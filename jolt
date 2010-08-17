@@ -40,13 +40,12 @@ def get_record(name):
   metafile = os.path.join(metadir, name)
   if not os.path.exists(metafile):
     return None, None
-  f = open(metafile, "rb")
   info = None
   try:
-    info = simplejson.loads(f.read())
+    with open(metafile, "rb") as f:
+      info = simplejson.load(f)
   except:
     pass
-  f.close()
   return info
 
 def delete_record(name):
@@ -64,9 +63,8 @@ def add_record(name, info):
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
-  f = open(metafile, "wb")
-  f.write(simplejson.dumps(info))
-  f.close()
+  with open(metafile, "wb") as f:
+    simplejson.dump(info, f)
 
 def get_vimhome():
   """Get user's vim home."""
@@ -108,7 +106,8 @@ def handle_remove_readonly(func, path, exc):
 
 def extract_vba(tmpdir, filename):
   """Extract vba file."""
-  lines = open(filename, 'r').read().split("\n")[3:]
+  with open(filename, "rb") as f:
+    lines = f.read().split("\n")[3:]
   while len(lines) > 0:
     name = lines.pop(0).split("\t")[0]
     if len(name) == 0:
@@ -121,9 +120,8 @@ def extract_vba(tmpdir, filename):
     count = int(lines.pop(0))
     data = "\n".join(lines[0:count])
     lines = lines[count:]
-    f = open(name, "wb")
-    f.write(data)
-    f.close()
+    with open(name, "wb") as f:
+      f.write(data)
 
 def extract_tar_gz(tmpdir, filename):
   """Extract tar.gz/tar.bz2 file."""
@@ -140,9 +138,8 @@ def extract_tar_gz(tmpdir, filename):
         continue
       if not os.path.isdir(td):
         os.makedirs(td)
-      f = open(tf, "wb")
-      f.write(tfile.extractfile(tinfo.name).read())
-      f.close()
+      with open(tf, "wb") as f:
+        f.write(tfile.extractfile(tinfo.name).read())
   finally:
     tfile.close()
 
@@ -161,9 +158,8 @@ def extract_zip(tmpdir, filename):
         continue
       if not os.path.isdir(zd):
         os.makedirs(zd)
-      f = open(zf, "wb")
-      f.write(zfile.read(zinfo.filename))
-      f.close()
+      with open(zf, "wb") as f:
+        f.write(zfile.read(zinfo.filename))
   finally:
     zfile.close()
 
@@ -253,17 +249,16 @@ def command_install(args):
     else:
       r = urllib2.urlopen(info["url"])
       filename = r.info()["Content-Disposition"].split("filename=")[1]
-      f = open(filename, "wb")
-      f.write(r.read())
-      f.close()
+      with open(filename, "wb") as f:
+        f.write(r.read())
 
       if len(filename) > 4 and filename[-4:] == '.vba':
         extract_vba(tmpdir, filename)
         os.remove(filename)
       elif len(filename) > 7 and filename[-7:] == '.vba.gz':
-        f = open(filename[:-3], "wb")
-        f.write(gzip.open(filename).read())
-        f.close()
+        with open(filename[:-3], "wb") as f:
+          with gzip.open(filename) as gz:
+            f.write(gz.read())
         os.remove(filename)
         filename = filename[:-3]
         extract_vba(tmpdir, filename)
@@ -279,16 +274,14 @@ def command_install(args):
         shutil.move(filename, os.path.join(tmpdir, info["installer"], filename))
       elif info["installer"] == "custom":
         if sys.platform == 'win32':
-          f = open("___install.bat", "wb")
-          f.write("@echo off\n")
-          f.write(info["installer_win32"])
-          f.close()
+          with open("___install.bat", "wb") as f:
+            f.write("@echo off\n")
+            f.write(info["installer_win32"])
           os.system("___install.bat")
           os.remove("___install.bat")
         else:
-          f = open("___install.sh", "wb")
-          f.write(info["installer_unix"])
-          f.close()
+          with open("___install.sh", "wb") as f:
+            f.write(info["installer_unix"])
           os.system("sh ___install.sh")
           os.remove("___install.sh")
 
@@ -383,7 +376,7 @@ Files:
 def command_help(args):
   """Show command usages."""
   print """
-Jolt : the Vim Package Management
+Jolt : the Vim Package Management System
     your vim home: %s
 
   commands:
