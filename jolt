@@ -157,26 +157,24 @@ def extract_zip(tmpdir, filename):
       with open(zf, "wb") as f:
         f.write(zfile.read(zinfo.filename))
 
-def command_uninstall(arg):
+def command_uninstall(name):
   """Delete files writen in meta-info."""
-  info = get_record(arg)
+  info = get_record(name)
   if not info:
-    print >>sys.stderr, "%s is not installed" % arg
+    print >>sys.stderr, "%s is not installed" % name
     return
   home = get_vimhome()
   for f in info["files"]:
     ff = os.path.join(home, f)
     if os.path.exists(ff):
       os.remove(ff)
-  delete_record(arg)
+  delete_record(name)
 
-def command_install(arg):
+def command_install(name):
   """Install from remote."""
-  if isinstance(arg, str):
-    name = arg
-  elif isinstance(arg, dict):
-    name = arg["name"]
-    info = arg
+  if isinstance(name, dict):
+    info = name
+    name = info["name"]
 
   if len(name) > 4 and name.startswith("git!"):
     url = name[4:]
@@ -291,9 +289,9 @@ def command_install(arg):
     os.chdir(olddir)
     shutil.rmtree(tmpdir)
 
-def command_joltinfo(arg):
+def command_joltinfo(name):
   """Show jolt-info getting from vimjolts server."""
-  info = get_joltinfo(arg)
+  info = get_joltinfo(name)
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
@@ -305,9 +303,9 @@ def command_joltinfo(arg):
     "Packer: %s" % str(info["packer"]),
     "Requires:\n  %s" % "\n  ".join(info["requires"])])
 
-def command_search(arg):
+def command_search(word):
   """Search the name of package from vimjolts server."""
-  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": arg}))
+  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
   res = simplejson.loads(f.read())
   for r in res:
     print "%s: %s" % (r["name"], r["version"])
@@ -323,7 +321,7 @@ def command_list():
     if info:
       print "%s: %s" % (f, info["version"])
 
-def command_update(arg):
+def command_update():
   """Update all packages installed."""
   metadir = os.path.join(get_vimhome(), "jolts", ".meta")
   if not os.path.isdir(metadir):
@@ -337,11 +335,11 @@ def command_update(arg):
     else:
       command_install(f)
 
-def command_metainfo(arg):
+def command_metainfo(name):
   """Show meta-info of installed package."""
-  info = get_record(arg)
+  info = get_record(name)
   if not info:
-    print >>sys.stderr, "%s is not installed" % arg
+    print >>sys.stderr, "%s is not installed" % name
     return
   print "\n".join([
     "Name: %s" % info["name"],
