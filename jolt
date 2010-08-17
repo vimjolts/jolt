@@ -240,10 +240,10 @@ def command_install(name):
       with open(filename, "wb") as f:
         f.write(r.read())
 
-      if len(filename) > 4 and filename[-4:] == '.vba':
+      if filename.endswith(".vba"):
         extract_vba(tmpdir, filename)
         os.remove(filename)
-      elif len(filename) > 7 and filename[-7:] == '.vba.gz':
+      elif filename.endswith(".vba.gz"):
         with open(filename[:-3], "wb") as f:
           with gzip.open(filename) as gz:
             f.write(gz.read())
@@ -251,10 +251,10 @@ def command_install(name):
         filename = filename[:-3]
         extract_vba(tmpdir, filename)
         os.remove(filename)
-      elif (len(filename) > 7 and filename[-7:] == '.tar.gz') or (len(filename) > 7 and filename[-7:] == '.tar.bz2'):
+      elif filename.endswith(".tar.gz") or filename.endswith(".tar.bz2"):
         extract_tar_gz(tmpdir, filename)
         os.remove(filename)
-      elif len(filename) > 4 and filename[-4:] == '.zip':
+      elif filename.endswith(".zip"):
         extract_zip(tmpdir, filename)
         os.remove(filename)
       elif info["installer"] in ["plugin", "ftplugin", "syntax", "colors", "doc", "indent", "dict"]:
