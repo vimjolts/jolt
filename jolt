@@ -190,7 +190,7 @@ def command_install(name):
     info = name
     name = info["name"]
 
-  if len(name) > 4 and name.startswith("git!"):
+  if name.startswith("git!"):
     url = name[4:]
     name = urlparse(url).path.split("/").pop()
     info = {
@@ -204,7 +204,7 @@ def command_install(name):
       "extractor": "git",
       "installer": "",
     }
-  elif len(name) > 4 and name.startswith("svn!"):
+  elif name.startswith("svn!"):
     url = name[4:]
     name = urlparse(url).path.split("/").pop()
     info = {
@@ -218,7 +218,7 @@ def command_install(name):
       "extractor": "svn",
       "installer": "",
     }
-  elif len(name) > 7 and name.startswith("http://"):
+  elif name.startswith("http://"):
     name = urlparse(url).path.split("/").pop()
     info = {
       "name": name,
