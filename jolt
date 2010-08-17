@@ -29,7 +29,7 @@ import bz2
 from urlparse import urlparse
 
 ___name___ = "jolt"
-___author___ = "mattn <mattn.jp@gmail.com>"
+___author___ = "The VimJolts Team"
 #___license___ = ""
 ___version___ = "0.1"
 
