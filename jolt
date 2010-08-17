@@ -74,8 +74,8 @@ def get_vimhome():
 
 def get_joltinfo(name):
   """Get jolt-info from server that is stored information about the package."""
-  with urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name) as f:
-    return simplejson.load(f)
+  f = urllib2.urlopen("http://vimjolts.appspot.com/api/entry/byname/%s" % name)
+  return simplejson.load(f)
 
 def copytree(src, dst, basedir=""):
   """Copy directory tree as overwriting. if basedir is set, it wont copy files at upper of basedir."""
@@ -250,8 +250,8 @@ def command_install(name):
     elif info["extractor"] == "svn":
       os.system("svn export %s %s" % (info["url"], tmpdir))
     else:
-      with urllib2.urlopen(info["url"]) as f:
-        filename = f.info()["Content-Disposition"].split("filename=")[1]
+      f = urllib2.urlopen(info["url"])
+      filename = f.info()["Content-Disposition"].split("filename=")[1]
       with open(filename, "wb") as f:
         f.write(r.read())
 
@@ -310,8 +310,8 @@ def command_joltinfo(name):
 
 def command_search(word):
   """Search the name of package from vimjolts server."""
-  with urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word})) as f:
-    res = simplejson.load(f)
+  f = urllib2.urlopen("http://vimjolts.appspot.com/api/search?" + urllib.urlencode({"word": word}))
+  res = simplejson.load(f)
   for r in res:
     print "%s: %s" % (r["name"], r["version"])
 
