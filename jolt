@@ -181,10 +181,10 @@ def command_uninstall(args):
 def command_install(args):
   """Install from remote."""
   opts = []
-  if type(args) is list:
+  if isinstance(args, list):
     if len(args) == 0: raise RuntimeError("Invalid arguments")
     name = args[0]
-  elif type(args) is dict:
+  elif isinstance(args, dict):
     name = args["name"]
     info = args
 
