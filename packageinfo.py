@@ -80,7 +80,7 @@ class PackageInfo:
             for d in dirnames:
                 yield os.path.join(dirpath, d)
 
-    def get_special_dirs(self):
+    def special_dirs(self):
         return (d
                 for d in PackageInfo.SPECIAL_DIRS
                 if os.path.isdir(os.path.join(self.dir, d)))
@@ -101,14 +101,14 @@ class PackageInfo:
         else:
             return False
 
-    def get_necessary_files(self):
+    def necessary_files(self):
         for dirpath, _, filenames in os.walk(self.dir):
             for f in filenames:
                 _, f = shift_path(self.dir, dirpath, f)
                 if self.is_necessary(f):
                     yield f
 
-    def get_unnecessary_files(self):
+    def unnecessary_files(self):
         for dirpath, _, filenames in os.walk(self.dir):
             for f in filenames:
                 _, f = shift_path(self.dir, dirpath, f)
@@ -121,16 +121,16 @@ def main():
     dir = os.path.join(os.environ['HOME'], ".vim")
 
     if __debug__:
-        print "\n\n\n---------------------- .get_special_dirs() ----------------------"
-        for d in PackageInfo(dir).get_special_dirs():
+        print "\n\n\n---------------------- .special_dirs() ----------------------"
+        for d in PackageInfo(dir).special_dirs():
             print d
 
-        print "\n\n\n---------------------- .get_necessary_files() ----------------------"
-        for f in PackageInfo(dir).get_necessary_files():
+        print "\n\n\n---------------------- .necessary_files() ----------------------"
+        for f in PackageInfo(dir).necessary_files():
             print f
 
-        print "\n\n\n---------------------- .get_unnecessary_files() ----------------------"
-        for f in PackageInfo(dir).get_unnecessary_files():
+        print "\n\n\n---------------------- .unnecessary_files() ----------------------"
+        for f in PackageInfo(dir).unnecessary_files():
             print f
 
         print "\n\n\n---------------------- .dirs() ----------------------"
