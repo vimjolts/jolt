@@ -86,14 +86,14 @@ class PackageInfo:
 
     def get_necessary_files(self):
         for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(self.dir, d):
+            for dirpath, dirnames, filenames in os.walk(os.path.join(self.dir, d)):
                 for f in filenames:
                     if self.is_necessary(d, f):
                         yield os.path.join(d, f)
 
     def get_unnecessary_files(self):
         for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(self.dir, d):
+            for dirpath, dirnames, filenames in os.walk(os.path.join(self.dir, d)):
                 for f in filenames:
                     if not self.is_necessary(d, f):
                         yield os.path.join(d, f)
