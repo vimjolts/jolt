@@ -23,7 +23,7 @@ def split_all(relpath):
             return [tail]
         else:
             return split_all(head) + [tail]
-    assert not os.path.isabs(f)
+    assert not os.path.isabs(relpath)
     return _split_all(relpath)
 
 
