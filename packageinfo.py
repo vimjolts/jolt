@@ -53,11 +53,6 @@ class PackageInfo:
     def __init__(self, dir):
         self.dir = dir
 
-    def walk(self):
-        """ Utility method to walk self.dir """
-        for w in os.walk(self.dir):
-            yield w
-
     def files(self):
         """ Utility method to get all files under self.dir """
         for dirpath, dirnames, filenames in os.walk(self.dir):
