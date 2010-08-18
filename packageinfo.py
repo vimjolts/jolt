@@ -103,33 +103,27 @@ class PackageInfo:
 def main():
     dir = os.path.join(os.environ['HOME'], ".vim")
 
-    # print "\n\n\n---------------------- os.walk() ----------------------"
-    # for dirpath, dirnames, filenames in os.walk(PackageInfo(dir).dir):
-    #     print dirpath + ":"
-    #     for d in dirnames:
-    #         print "  [d] " + d
-    #     for f in filenames:
-    #         print "  [f] " + f
+    if __debug__:
+        print "\n\n\n---------------------- .get_special_dirs() ----------------------"
+        for d in PackageInfo(dir).get_special_dirs():
+            print d
 
-    # print "\n\n\n---------------------- .dirs() ----------------------"
-    # for d in PackageInfo(dir).dirs():
-    #     print d
+        print "\n\n\n---------------------- .get_necessary_files() ----------------------"
+        for f in PackageInfo(dir).get_necessary_files():
+            print f
 
-    # print "\n\n\n---------------------- .get_special_dirs() ----------------------"
-    # for d in PackageInfo(dir).get_special_dirs():
-    #     print d
+        print "\n\n\n---------------------- .get_vim_files() ----------------------"
+        for f in PackageInfo(dir).get_vim_files():
+            print f
 
-    # print "\n\n\n---------------------- .get_necessary_files() ----------------------"
-    # for f in PackageInfo(dir).get_necessary_files():
-    #     print f
+        print "\n\n\n---------------------- .dirs() ----------------------"
+        for d in PackageInfo(dir).dirs():
+            print d
 
-    # print "\n\n\n---------------------- .get_vim_files() ----------------------"
-    # for f in PackageInfo(dir).get_vim_files():
-    #     print f
+        print "\n\n\n---------------------- .files() ----------------------"
+        for f in PackageInfo(dir).files():
+            print f
 
-    # print "\n\n\n---------------------- .files() ----------------------"
-    # for f in PackageInfo(dir).files():
-    #     print f
 
 if __name__ == '__main__':
     main()
