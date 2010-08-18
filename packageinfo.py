@@ -121,6 +121,10 @@ def main():
         for f in PackageInfo(dir).get_necessary_files():
             print f
 
+        print "\n\n\n---------------------- .get_unnecessary_files() ----------------------"
+        for f in PackageInfo(dir).get_unnecessary_files():
+            print f
+
         print "\n\n\n---------------------- .dirs() ----------------------"
         for d in PackageInfo(dir).dirs():
             print d
