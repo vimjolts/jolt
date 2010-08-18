@@ -57,8 +57,14 @@ class VimballFile:
                 'There is no item named %r in the archive' % name)
 
         return info
-    def read(self, name):
+    def read(self, name, *default):
         """Return file bytes (as a string) for name."""
-        return self.NameToInfo.get(name).body
+        if self.NameToInfo.has_key(name):
+            return self.NameToInfo.get(name).body
+        else:
+            if default:
+                return default[0]
+            else:
+                return None
 
 # vim:set et ts=4 sw=4:
