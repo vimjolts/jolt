@@ -30,16 +30,19 @@ def split_all(relpath):
 class PackageInfo:
 
     class ContainAny:
+        """ Always returns True for any filepath. """
         def __call__(self, f):
             return True
 
     class ContainSuffix:
+        """ Returns True if filepath ends with given suffix. """
         def __init__(self, suffix):
             self.suffix = suffix
         def __call__(self, f):
             return f.endswith(self.suffix)
 
     class ContainSpecialDirs:
+        """ Returns True if filepath is under the special directory. """
         def __call__(self, f):
             dirs = split_all(f)
             return dirs and dirs[0] != 'after' and PackageInfo.SPECIAL_DIR_RULES.has_key(dirs[0])
@@ -69,26 +72,29 @@ class PackageInfo:
         self.dir = dir
 
     def files(self):
-        """ Utility method to get all files under self.dir """
+        """ Utility method to get all files under self.dir. """
         for dirpath, dirnames, filenames in os.walk(self.dir):
             for f in filenames:
                 yield os.path.join(dirpath, f)
 
     def dirs(self):
-        """ Utility method to get all directories under self.dir """
+        """ Utility method to get all directories under self.dir. """
         for dirpath, dirnames, filenames in os.walk(self.dir):
             for d in dirnames:
                 yield os.path.join(dirpath, d)
 
     def special_dirs(self):
+        """ Returns all PackageInfo.SPECIAL_DIRS in self.dir. """
         return (d
                 for d in PackageInfo.SPECIAL_DIRS
                 if os.path.isdir(os.path.join(self.dir, d)))
 
     def is_special_dir(self, dir):
+        """ Returns boolean value if dir is in PackageInfo.SPECIAL_DIR_RULES. """
         return PackageInfo.SPECIAL_DIR_RULES.has_key(dir)
 
     def is_necessary(self, relpath):
+        """ Returns boolean value if relpath is necessary file. """
         assert not os.path.isabs(relpath)
 
         dirs = split_all(relpath)
@@ -102,6 +108,7 @@ class PackageInfo:
             return False
 
     def necessary_files(self):
+        """ Returns all necessary files. """
         for dirpath, _, filenames in os.walk(self.dir):
             for f in filenames:
                 _, f = shift_path(self.dir, dirpath, f)
@@ -109,6 +116,7 @@ class PackageInfo:
                     yield f
 
     def unnecessary_files(self):
+        """ Returns all unnecessary files. """
         for dirpath, _, filenames in os.walk(self.dir):
             for f in filenames:
                 _, f = shift_path(self.dir, dirpath, f)
