@@ -16,6 +16,16 @@ def shift_path(top, dirpath, filename):
     assert os.path.isabs(dirpath)
     return _shift_path(dirpath, filename)
 
+def split_all(relpath):
+    def _split_all(relpath):
+        (head, tail) = os.path.split(relpath)
+        if head == '':
+            return [tail]
+        else:
+            return split_all(head) + [tail]
+    assert not os.path.isabs(f)
+    return _split_all(relpath)
+
 
 class PackageInfo:
 
@@ -31,14 +41,6 @@ class PackageInfo:
 
     class ContainSpecialDirs:
         def __call__(self, f):
-            def split_all(relpath):
-                (head, tail) = os.path.split(relpath)
-                if head == '':
-                    return [tail]
-                else:
-                    return split_all(head) + [tail]
-
-            assert not os.path.isabs(f)
             dirs = split_all(f)
             return dirs and dirs[0] != 'after' and PackageInfo.SPECIAL_DIR_RULES.has_key(dirs[0])
 
