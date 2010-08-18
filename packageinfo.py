@@ -83,6 +83,25 @@ class PackageInfo:
                     if f.endswith('.vim'):
                         yield os.path.join(dirpath, f)
 
+    def is_necessary(self, sp_dir, f):
+        if PackageInfo.SPECIAL_DIR_RULES.has_key(sp_dir):
+            return PackageInfo.SPECIAL_DIR_RULES[sp_dir](f)
+        else:
+            return False
+
+    def get_necessary_files(self):
+        for d in self.get_special_dirs():
+            for dirpath, dirnames, filenames in os.walk(self.dir, d):
+                for f in filenames:
+                    if self.is_necessary(d, f):
+                        yield os.path.join(d, f)
+
+    def get_unnecessary_files(self):
+        for d in self.get_special_dirs():
+            for dirpath, dirnames, filenames in os.walk(self.dir, d):
+                for f in filenames:
+                    if not self.is_necessary(d, f):
+                        yield os.path.join(d, f)
 
 
 
