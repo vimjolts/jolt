@@ -4,6 +4,19 @@
 import os
 
 
+
+def shift_path(top, dirpath, filename):
+    def _shift_path(dir, file):
+        if dir == top:
+            return dir, file
+        else:
+            head, tail = os.path.split(dir)
+            return _shift_path(head, os.path.join(tail, file))
+    assert os.path.isabs(top)
+    assert os.path.isabs(dirpath)
+    return _shift_path(dirpath, filename)
+
+
 class PackageInfo:
 
     class ContainAny:
@@ -77,18 +90,22 @@ class PackageInfo:
             return False
 
     def get_necessary_files(self):
-        for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(os.path.join(self.dir, d)):
+        for sp_dir in self.get_special_dirs():
+            top = os.path.join(self.dir, sp_dir)
+            for dirpath, dirnames, filenames in os.walk(top):
                 for f in filenames:
-                    if self.is_necessary(d, f):
-                        yield os.path.join(d, f)
+                    d, f = shift_path(top, dirpath, f)
+                    if self.is_necessary(sp_dir, f):
+                        yield os.path.join(sp_dir, f)
 
     def get_unnecessary_files(self):
-        for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(os.path.join(self.dir, d)):
+        for sp_dir in self.get_special_dirs():
+            top = os.path.join(self.dir, sp_dir)
+            for dirpath, dirnames, filenames in os.walk(top):
                 for f in filenames:
-                    if not self.is_necessary(d, f):
-                        yield os.path.join(d, f)
+                    d, f = shift_path(top, dirpath, f)
+                    if not self.is_necessary(sp_dir, f):
+                        yield os.path.join(sp_dir, f)
 
 
 
