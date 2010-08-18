@@ -70,14 +70,6 @@ class PackageInfo:
                 for d in PackageInfo.SPECIAL_DIRS
                 if os.path.isdir(os.path.join(self.dir, d)))
 
-    def get_vim_files(self):
-        """ Get *.vim files from self.dir """
-        for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(self.dir, d):
-                for f in filenames:
-                    if f.endswith('.vim'):
-                        yield os.path.join(dirpath, f)
-
     def is_necessary(self, sp_dir, f):
         if PackageInfo.SPECIAL_DIR_RULES.has_key(sp_dir):
             return PackageInfo.SPECIAL_DIR_RULES[sp_dir](f)
@@ -110,10 +102,6 @@ def main():
 
         print "\n\n\n---------------------- .get_necessary_files() ----------------------"
         for f in PackageInfo(dir).get_necessary_files():
-            print f
-
-        print "\n\n\n---------------------- .get_vim_files() ----------------------"
-        for f in PackageInfo(dir).get_vim_files():
             print f
 
         print "\n\n\n---------------------- .dirs() ----------------------"
