@@ -57,6 +57,10 @@ class VimballFile:
                 'There is no item named %r in the archive' % name)
 
         return info
+
+    def has_pkg(self, name):
+        return self.NameToInfo.has_key(name)
+
     def read(self, name, *default):
         """Return file bytes (as a string) for name."""
         if self.NameToInfo.has_key(name):
