@@ -97,6 +97,9 @@ class PackageInfo:
         """ Returns boolean value if relpath is necessary file. """
         assert not os.path.isabs(relpath)
 
+        if not os.path.isfile(os.path.join(self.dir, relpath)):
+            return False
+
         dirs = split_all(relpath)
         if len(dirs) <= 1:
             return False
