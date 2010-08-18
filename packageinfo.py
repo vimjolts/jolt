@@ -88,29 +88,32 @@ class PackageInfo:
     def is_special_dir(self, dir):
         return PackageInfo.SPECIAL_DIR_RULES.has_key(dir)
 
-    def is_necessary(self, sp_dir, f):
-        if PackageInfo.SPECIAL_DIR_RULES.has_key(sp_dir):
-            return PackageInfo.SPECIAL_DIR_RULES[sp_dir](f)
+    def is_necessary(self, relpath):
+        assert not os.path.isabs(relpath)
+
+        dirs = split_all(relpath)
+        if len(dirs) <= 1:
+            return False
+
+        d, f = dirs[0], apply(os.path.join, dirs[1:])
+        if PackageInfo.SPECIAL_DIR_RULES.has_key(d):
+            return PackageInfo.SPECIAL_DIR_RULES[d](f)
         else:
             return False
 
     def get_necessary_files(self):
-        for sp_dir in self.get_special_dirs():
-            top = os.path.join(self.dir, sp_dir)
-            for dirpath, dirnames, filenames in os.walk(top):
-                for f in filenames:
-                    d, f = shift_path(top, dirpath, f)
-                    if self.is_necessary(sp_dir, f):
-                        yield os.path.join(sp_dir, f)
+        for dirpath, _, filenames in os.walk(self.dir):
+            for f in filenames:
+                _, f = shift_path(self.dir, dirpath, f)
+                if self.is_necessary(f):
+                    yield f
 
     def get_unnecessary_files(self):
-        for sp_dir in self.get_special_dirs():
-            top = os.path.join(self.dir, sp_dir)
-            for dirpath, dirnames, filenames in os.walk(top):
-                for f in filenames:
-                    d, f = shift_path(top, dirpath, f)
-                    if not self.is_necessary(sp_dir, f):
-                        yield os.path.join(sp_dir, f)
+        for dirpath, _, filenames in os.walk(self.dir):
+            for f in filenames:
+                _, f = shift_path(self.dir, dirpath, f)
+                if not self.is_necessary(f):
+                    yield f
 
 
 
