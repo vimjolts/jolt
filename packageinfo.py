@@ -31,16 +31,16 @@ class PackageInfo:
 
     class ContainSpecialDirs:
         def __call__(self, f):
-            def split_all(fullpath):
-                (head, tail) = os.path.split(fullpath)
+            def split_all(relpath):
+                (head, tail) = os.path.split(relpath)
                 if head == '':
                     return [tail]
                 else:
                     return split_all(head) + [tail]
 
             assert not os.path.isabs(f)
-            d = split_all(f)
-            return d and os.path.isdir(d[0]) and SPECIAL_DIR_RULES.has_key(d[0])
+            dirs = split_all(f)
+            return dirs and dirs[0] != 'after' and PackageInfo.SPECIAL_DIR_RULES.has_key(dirs[0])
 
     SPECIAL_DIR_RULES = {
         'after': ContainSpecialDirs(),
