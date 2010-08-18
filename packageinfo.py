@@ -111,19 +111,23 @@ def main():
     #     for f in filenames:
     #         print "  [f] " + f
 
-    print "\n\n\n---------------------- .dirs() ----------------------"
-    for d in PackageInfo(dir).dirs():
-        print d
+    # print "\n\n\n---------------------- .dirs() ----------------------"
+    # for d in PackageInfo(dir).dirs():
+    #     print d
 
-    print "\n\n\n---------------------- .get_special_dirs() ----------------------"
-    for d in PackageInfo(dir).get_special_dirs():
-        print d
+    # print "\n\n\n---------------------- .get_special_dirs() ----------------------"
+    # for d in PackageInfo(dir).get_special_dirs():
+    #     print d
 
-    print "\n\n\n---------------------- .get_vim_files() ----------------------"
-    for f in PackageInfo(dir).get_vim_files():
-        print f
+    # print "\n\n\n---------------------- .get_necessary_files() ----------------------"
+    # for f in PackageInfo(dir).get_necessary_files():
+    #     print f
 
-    # print "\n\n\n---------------------- file ----------------------"
+    # print "\n\n\n---------------------- .get_vim_files() ----------------------"
+    # for f in PackageInfo(dir).get_vim_files():
+    #     print f
+
+    # print "\n\n\n---------------------- .files() ----------------------"
     # for f in PackageInfo(dir).files():
     #     print f
 
