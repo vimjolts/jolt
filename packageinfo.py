@@ -54,7 +54,7 @@ class PackageInfo:
     def get_vim_files(self):
         """ Get *.vim files from self.dir """
         for d in self.get_special_dirs():
-            for dirpath, dirnames, filenames in os.walk(d):
+            for dirpath, dirnames, filenames in os.walk(self.dir, d):
                 for f in filenames:
                     if f.endswith('.vim'):
                         yield os.path.join(dirpath, f)
