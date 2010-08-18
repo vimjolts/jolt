@@ -85,6 +85,9 @@ class PackageInfo:
                 for d in PackageInfo.SPECIAL_DIRS
                 if os.path.isdir(os.path.join(self.dir, d)))
 
+    def is_special_dir(self, dir):
+        return PackageInfo.SPECIAL_DIR_RULES.has_key(dir)
+
     def is_necessary(self, sp_dir, f):
         if PackageInfo.SPECIAL_DIR_RULES.has_key(sp_dir):
             return PackageInfo.SPECIAL_DIR_RULES[sp_dir](f)
