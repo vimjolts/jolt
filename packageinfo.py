@@ -6,25 +6,49 @@ import os
 
 class PackageInfo:
 
-    SPECIAL_DIRS = [
-        'after',
-        'autoload',
-        'colors',
-        'compiler',
-        # 'dict',
-        'doc',
-        'ftdetect',
-        'ftplugin',
-        'indent',
-        'keymap',
-        'lang',
-        'macros',
-        'plugin',
-        'spell',
-        'syntax',
-        # 'tools',
-        # 'tutor',
-    ]
+    class ContainAny:
+        def __call__(self, f):
+            return True
+
+    class ContainSuffix:
+        def __init__(self, suffix):
+            self.suffix = suffix
+        def __call__(self, f):
+            return f.endswith(self.suffix)
+
+    class ContainSpecialDirs:
+        def __call__(self, f):
+            def split_all(fullpath):
+                (head, tail) = os.path.split(fullpath)
+                if head == '':
+                    return [tail]
+                else:
+                    return split_all(head) + [tail]
+
+            assert(not os.path.isabs(f))
+            d = split_all(f)
+            return d and os.path.isdir(d[0]) and SPECIAL_DIR_RULES.has_key(d[0])
+
+    SPECIAL_DIR_RULES = {
+        'after': ContainSpecialDirs(),
+        'autoload': ContainSuffix('.vim'),
+        'colors': ContainSuffix('.vim'),
+        'compiler': ContainSuffix('.vim'),
+        # 'dict': ContainAny(),
+        'doc': ContainAny(),
+        'ftdetect': ContainSuffix('.vim'),
+        'ftplugin': ContainSuffix('.vim'),
+        'indent': ContainSuffix('.vim'),
+        'keymap': ContainAny(),
+        'lang': ContainAny(),
+        'macros': ContainAny(),
+        'plugin': ContainSuffix('.vim'),
+        'spell': ContainAny(),
+        'syntax': ContainSuffix('.vim'),
+        # 'tools': ContainAny(),
+        # 'tutor': ContainAny(),
+    }
+    SPECIAL_DIRS = SPECIAL_DIR_RULES.keys()
 
     def __init__(self, dir):
         self.dir = dir
