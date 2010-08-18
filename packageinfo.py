@@ -81,6 +81,10 @@ def main():
     for d in PackageInfo(dir).get_special_dirs():
         print d
 
+    print "\n\n\n---------------------- .get_vim_files() ----------------------"
+    for f in PackageInfo(dir).get_vim_files():
+        print f
+
     # print "\n\n\n---------------------- file ----------------------"
     # for f in PackageInfo(dir).files():
     #     print f
