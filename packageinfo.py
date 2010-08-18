@@ -25,7 +25,7 @@ class PackageInfo:
                 else:
                     return split_all(head) + [tail]
 
-            assert(not os.path.isabs(f))
+            assert not os.path.isabs(f)
             d = split_all(f)
             return d and os.path.isdir(d[0]) and SPECIAL_DIR_RULES.has_key(d[0])
 
