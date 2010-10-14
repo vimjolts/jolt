@@ -304,13 +304,20 @@ def command_joltinfo(name):
   if not info:
     print >>sys.stderr, "Jolt not installed"
     return
-  print "\n".join([
-    "Name: %s" % info["name"],
-    "Version: %s" % info["version"],
-    "Description: %s" % info["description"],
-    "URL: %s" % info["url"],
-    "Packer: %s" % str(info["packer"]),
-    "Requires:\n  %s" % "\n  ".join(info["requires"])])
+  if 'name' in info:
+    print 'Name: %s' % info['name']
+  if 'version' in info:
+    print 'Version: %s' % info['version']
+  if 'description' in info:
+    print 'Description: %s' % info['description']
+  if 'url' in info:
+    print 'URL: %s' % info['url']
+  if 'packer' in info:
+    print 'Packer: %s' % info['packer']
+  if 'requires' in info:
+    print 'Requires:'
+    for r in info['requires']:
+      print '  %s' % info['requires']
 
 def command_search(word):
   """Search the name of package from vimjolts server."""
