@@ -248,7 +248,6 @@ def command_help():
     """Show command usages."""
     print """
 Jolt : the Vim Package Management System
-        your vim home: %s
 
 commands:
     list:                 list installed packages.
@@ -258,5 +257,5 @@ commands:
     install   [package]:  install the package.
     uninstall [package]:  uninstall the package.
     search    [word]:     search packages from joltserver
-""" % get_vimhome()
+"""
     sys.exit(0)
