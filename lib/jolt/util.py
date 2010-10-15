@@ -44,6 +44,9 @@ def get_vimhome():
   else:
     return os.path.expanduser("~/.vim")
 
+def get_joltdir():
+    return os.path.join(get_vimhome(), 'jolt')
+
 def extract_vba(tmpdir, filename):
   """Extract vba file."""
   with open(filename, "rb") as f:

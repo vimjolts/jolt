@@ -205,7 +205,7 @@ def command_search(word):
 @jolt_command('list')
 def command_list():
     """Show the names of installed packages."""
-    metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+    metadir = os.path.join(get_joltdir(), "meta")
     if not os.path.isdir(metadir):
         return
     for f in os.listdir(metadir):
@@ -216,7 +216,7 @@ def command_list():
 @jolt_command('update')
 def command_update():
     """Update all packages installed."""
-    metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+    metadir = os.path.join(get_joltdir(), "meta")
     if not os.path.isdir(metadir):
         return
     for f in os.listdir(metadir):

@@ -8,7 +8,7 @@ from jolt.util import get_vimhome
 
 def get_record(name):
   """Get meta-info from local that is stored information about the package."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+  metadir = os.path.join(get_joltdir(), "meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
@@ -23,7 +23,7 @@ def get_record(name):
 
 def delete_record(name):
   """Delete meta-info file."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+  metadir = os.path.join(get_joltdir(), "meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
@@ -32,7 +32,7 @@ def delete_record(name):
 
 def add_record(name, info):
   """Add meta-info file."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
+  metadir = os.path.join(get_joltdir(), "meta")
   if not os.path.isdir(metadir):
     os.makedirs(metadir)
   metafile = os.path.join(metadir, name)
