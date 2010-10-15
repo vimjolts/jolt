@@ -27,52 +27,15 @@ import gzip
 import bz2
 from urlparse import urlparse
 
+sys.path = [os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')] + sys.path
+from jolt.record import get_record, delete_record, add_record
+from jolt.util   import get_vimhome
+
+
 ___name___ = "jolt"
 ___author___ = "The VimJolts Team"
 #___license___ = ""
 ___version___ = "0.1"
-
-def get_record(name):
-  """Get meta-info from local that is stored information about the package."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
-  if not os.path.isdir(metadir):
-    os.makedirs(metadir)
-  metafile = os.path.join(metadir, name)
-  info = None
-  if os.path.exists(metafile):
-    try:
-      with open(metafile, "rb") as f:
-        info = simplejson.load(f)
-    except:
-      pass
-  return info
-
-def delete_record(name):
-  """Delete meta-info file."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
-  if not os.path.isdir(metadir):
-    os.makedirs(metadir)
-  metafile = os.path.join(metadir, name)
-  if os.path.exists(metafile):
-    os.remove(metafile)
-
-def add_record(name, info):
-  """Add meta-info file."""
-  metadir = os.path.join(get_vimhome(), "jolts", ".meta")
-  if not os.path.isdir(metadir):
-    os.makedirs(metadir)
-  metafile = os.path.join(metadir, name)
-  with open(metafile, "wb") as f:
-    simplejson.dump(info, f)
-
-def get_vimhome():
-  """Get user's vim home."""
-  if os.environ.has_key('JOLT_VIM_HOME_DIR'):
-    return os.environ['JOLT_VIM_HOME_DIR']
-  elif sys.platform == 'win32':
-    return os.path.expanduser("~/vimfiles")
-  else:
-    return os.path.expanduser("~/.vim")
 
 def get_joltinfo(name):
   """Get jolt-info from server that is stored information about the package."""
