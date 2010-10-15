@@ -10,6 +10,9 @@ import shutil
 import tarfile
 import zipfile
 
+from jolt import config
+
+
 def get_joltinfo(name):
   """Get jolt-info from server that is stored information about the package."""
   try:
@@ -36,13 +39,9 @@ def copytree(src, dst, basedir=""):
       print "Can't copy %s to %s: %s" % (`srcname`, `dstname`, str(why))
 
 def get_vimhome():
-  """Get user's vim home."""
-  if os.environ.has_key('JOLT_VIM_HOME_DIR'):
-    return os.environ['JOLT_VIM_HOME_DIR']
-  elif sys.platform == 'win32':
-    return os.path.expanduser("~/vimfiles")
-  else:
-    return os.path.expanduser("~/.vim")
+    """Get user's vim home."""
+    # 'vim_home_dir' is required.
+    return config.get_config()['vim_home_dir']
 
 def get_joltdir():
     return os.path.join(get_vimhome(), 'jolt')

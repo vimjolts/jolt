@@ -3,7 +3,7 @@
 
 import os
 import simplejson
-from jolt.util import get_vimhome
+from jolt.util import get_vimhome, get_joltdir
 
 
 def get_record(name):

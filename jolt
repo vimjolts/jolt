@@ -13,6 +13,7 @@ philosophy.
 
 import os
 import sys
+import traceback
 
 sys.path = [os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')] + sys.path
 from jolt.commands import invoke_command

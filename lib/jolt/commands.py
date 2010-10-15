@@ -15,7 +15,7 @@ import re
 from urlparse import urlparse
 
 from jolt.record import get_record, delete_record, add_record
-from jolt.util   import get_vimhome, get_joltinfo, copytree, extract_vba, extract_tar_gz, extract_zip, invoke_custom_installer, remove_empty_dir
+from jolt.util   import get_vimhome, get_joltinfo, copytree, extract_vba, extract_tar_gz, extract_zip, invoke_custom_installer, remove_empty_dir, get_joltdir
 
 
 commands = {}
