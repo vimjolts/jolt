@@ -17,6 +17,7 @@ import traceback
 
 sys.path = [os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')] + sys.path
 from jolt.commands import invoke_command
+from jolt.config   import load_config
 
 
 ___name___ = "jolt"
@@ -28,6 +29,7 @@ if __name__ == '__main__':
   if len(sys.argv) == 1:
     invoke_command('help')
   try:
+    load_config()
     invoke_command(sys.argv[1], sys.argv[2:])
   except TypeError:
     if not sys.exc_info()[2].tb_next:

@@ -7,6 +7,9 @@ import sys
 
 config = None
 
+def load_config():
+    get_config()    # Load config if not loaded.
+
 def get_config():
     global config
     if not config:
