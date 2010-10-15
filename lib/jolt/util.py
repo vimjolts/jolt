@@ -44,7 +44,11 @@ def get_vimhome():
     return config.get_config()['vim_home_dir']
 
 def get_joltdir():
-    return os.path.join(get_vimhome(), 'jolt')
+    c = config.get_config()
+    if 'jolt_dir' in c:
+        return c['jolt_dir']
+    else:
+        return os.path.join(get_vimhome(), 'jolt')
 
 def extract_vba(tmpdir, filename):
   """Extract vba file."""
