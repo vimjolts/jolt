@@ -31,6 +31,12 @@ def create_default_config():
 
 
 def look_up_config_file():
+    if os.environ.has_key('JOLT_RC'):
+        if os.path.exists(os.environ['JOLT_RC']):
+            return os.environ['JOLT_RC']
+        else:
+            return None
+
     if sys.platform == 'win32':
         path = []
         for env in ['HOME', 'USERPROFILE']:
