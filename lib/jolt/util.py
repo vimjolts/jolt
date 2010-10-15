@@ -21,7 +21,7 @@ def get_joltinfo(name):
     except:
         return None
 
-def copytree(src, dst, basedir=""):
+def copy_tree(src, dst, basedir=""):
     """Copy directory tree as overwriting. if basedir is set, it wont copy files at upper of basedir."""
     if not os.path.isdir(dst):
         os.makedirs(dst)
@@ -30,7 +30,7 @@ def copytree(src, dst, basedir=""):
         dstname = os.path.join(dst, name)
         try:
             if os.path.isdir(srcname):
-                copytree(srcname, dstname, basedir)
+                copy_tree(srcname, dstname, basedir)
             else:
                 #TODO: ignore copying needless files.
                 if len(basedir) == 0 or os.path.dirname(srcname) != basedir:
