@@ -234,14 +234,24 @@ def command_metainfo(name):
     if not info:
         print >>sys.stderr, "%s is not installed" % name
         return
-    print "\n".join([
-        "Name: %s" % info["name"],
-        "Version: %s" % info["version"],
-        "Description: %s" % info["description"],
-        "URL: %s" % info["url"],
-        "Packer: %s" % str(info["packer"]),
-        "Requires:\n  %s" % "\n  ".join(info["requires"]),
-        "Files:\n %s" % "\n  ".join(info["files"])])
+    if 'name' in info:
+        print 'Name: %s' % info['name']
+    if 'version' in info:
+        print 'Version: %s' % info['version']
+    if 'description' in info:
+        print 'Description: %s' % info['description']
+    if 'url' in info:
+        print 'URL: %s' % info['url']
+    if 'packer' in info:
+        print 'Packer: %s' % info['packer']
+    if 'requires' in info:
+        print 'Requires:'
+        for r in info['requires']:
+            print '  %s' % r
+    if 'files' in info:
+        print 'Files:'
+        for f in info['files']:
+            print '  %s' % f
 
 @jolt_command('help')
 def command_help():
