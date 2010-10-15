@@ -111,3 +111,16 @@ def invoke_custom_installer(tmpdir, info):
       f.write(info["installer_unix"])
     os.system("sh ___install.sh")
     os.remove("___install.sh")
+
+def remove_empty_dir(path):
+    if not os.path.exists(path):
+        return
+
+    def _remove_empty_dir(path):
+        if len(os.listdir(path)) == 0:
+            os.rmdir(path)
+            p = os.path.dirname(path)
+            if p == path:    # root?
+                return
+            _remove_empty_dir(p)
+    _remove_empty_dir(path)

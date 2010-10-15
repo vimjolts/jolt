@@ -15,7 +15,7 @@ import re
 from urlparse import urlparse
 
 from jolt.record import get_record, delete_record, add_record
-from jolt.util   import get_vimhome, get_joltinfo, copytree, extract_vba, extract_tar_gz, extract_zip, invoke_custom_installer
+from jolt.util   import get_vimhome, get_joltinfo, copytree, extract_vba, extract_tar_gz, extract_zip, invoke_custom_installer, remove_empty_dir
 
 
 commands = {}
@@ -47,9 +47,10 @@ def command_uninstall(name):
         return
     home = get_vimhome()
     for f in info["files"]:
-        ff = os.path.join(home, f)
-        if os.path.exists(ff):
-            os.remove(ff)
+        f = os.path.join(home, f)
+        if os.path.exists(f):
+            os.remove(f)
+            remove_empty_dir(os.path.dirname(f))
     delete_record(name)
 
 @jolt_command('install')
