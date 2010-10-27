@@ -15,8 +15,6 @@ import os
 import sys
 import traceback
 
-# sys.path[0] always refers to script's dirname.
-sys.path = [os.path.join(sys.path[0], 'lib')] + sys.path
 from jolt.commands import invoke_command
 from jolt.config   import load_config
 
