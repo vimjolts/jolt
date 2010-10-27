@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import simplejson
 from joltlib.util import get_vimhome, get_joltdir
