@@ -10,7 +10,7 @@ import shutil
 import tarfile
 import zipfile
 
-from jolt import config
+from joltlib import config
 
 
 def get_joltinfo(name):
