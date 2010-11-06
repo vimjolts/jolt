@@ -15,8 +15,8 @@ import os
 import sys
 import traceback
 
-from jolt.commands import invoke_command
-from jolt.config   import load_config
+from joltlib.commands import invoke_command
+from joltlib.config   import load_config
 
 
 ___name___ = "jolt"
